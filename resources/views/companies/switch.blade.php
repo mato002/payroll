@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.layout')
 
 @section('title', 'Switch Company')
 
@@ -47,7 +47,12 @@
                                     
                                     <form action="{{ route('companies.switch.store', $company) }}" method="POST" class="inline">
                                         @csrf
-                                        <input type="hidden" name="redirect_to" value="{{ request()->get('redirect_to', route('company.admin.dashboard')) }}">
+                                        @php
+                                            $baseDomain = config('tenancy.base_domain', 'app.test');
+                                            $protocol = request()->getScheme();
+                                            $companyDashboardUrl = sprintf('%s://%s.%s/admin/dashboard', $protocol, $company->slug, $baseDomain);
+                                        @endphp
+                                        <input type="hidden" name="redirect_to" value="{{ request()->get('redirect_to', $companyDashboardUrl) }}">
                                         <button type="submit" 
                                             class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors
                                             {{ $currentCompany && $currentCompany->id === $company->id ? 'opacity-50 cursor-not-allowed' : '' }}"

@@ -69,14 +69,11 @@ class CompanySwitchController extends Controller
         // Redirect to dashboard or return to previous page
         $redirectTo = $request->get('redirect_to');
         
-        // If no redirect specified, try to redirect to company dashboard
+        // If no redirect specified, build the company dashboard URL on subdomain
         if (! $redirectTo) {
-            try {
-                $redirectTo = route('company.admin.dashboard');
-            } catch (\Exception $e) {
-                // Fallback to company switcher page if route doesn't exist
-                $redirectTo = route('companies.switch.index');
-            }
+            $baseDomain = config('tenancy.base_domain', 'app.test');
+            $protocol = $request->getScheme();
+            $redirectTo = sprintf('%s://%s.%s/admin/dashboard', $protocol, $company->slug, $baseDomain);
         }
 
         return redirect($redirectTo)

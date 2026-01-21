@@ -36,8 +36,24 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        // Redirect to intended URL or default dashboard
-        return redirect()->intended(route('admin.dashboard'));
+        $user = Auth::user();
+
+        // Super admin → platform dashboard
+        if ($user->is_super_admin) {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        // Company admin/employee → company switcher
+        $companies = $user->accessibleCompanies();
+
+        if ($companies->isEmpty()) {
+            // User has no companies, redirect to landing with message
+            return redirect()->route('landing')
+                ->with('error', 'You do not have access to any companies. Please contact support.');
+        }
+
+        // Redirect to company switcher (user will select company and be redirected to subdomain)
+        return redirect()->intended(route('companies.switch.index'));
     }
 
     /**
