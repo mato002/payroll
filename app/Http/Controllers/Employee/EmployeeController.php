@@ -116,7 +116,7 @@ class EmployeeController extends Controller
             return $employee;
         });
 
-        return redirect()->route('employees.index')
+        return redirect()->route('companies.employees.index', ['company' => request()->route('company')])
             ->with('success', 'Employee created successfully.');
     }
 
@@ -202,7 +202,7 @@ class EmployeeController extends Controller
             }
         });
 
-        return redirect()->route('employees.index')
+        return redirect()->route('companies.employees.index', ['company' => request()->route('company')])
             ->with('success', 'Employee updated successfully.');
     }
 
@@ -213,7 +213,7 @@ class EmployeeController extends Controller
     {
         $employee->delete();
 
-        return redirect()->route('employees.index')
+        return redirect()->route('companies.employees.index', ['company' => request()->route('company')])
             ->with('success', 'Employee deleted successfully.');
     }
 

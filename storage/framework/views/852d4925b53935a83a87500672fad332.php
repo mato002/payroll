@@ -42,7 +42,7 @@ unset($__defined_vars, $__key, $__value); ?>
     $company = currentCompany();
     $companySlug = $company?->slug;
     $defaultAction = $companySlug && Route::has('payroll.runs.wizard.create') 
-        ? route('payroll.runs.wizard.create', ['company' => $companySlug]) 
+        ? route('companies.payroll.runs.path.wizard.create', ['company' => $companySlug]) 
         : null;
 ?>
 

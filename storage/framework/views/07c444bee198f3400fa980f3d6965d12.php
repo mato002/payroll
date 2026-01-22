@@ -152,7 +152,7 @@ unset($__defined_vars, $__key, $__value); ?>
                                     if (Route::has('companies.payroll.runs.path.review')) {
                                         $reviewRoute = route('companies.payroll.runs.path.review', ['company' => $currentCompanySlug, 'run' => $run->id]);
                                     } elseif (Route::has('payroll.runs.review')) {
-                                        $reviewRoute = route('payroll.runs.review', ['company' => $currentCompanySlug, 'run' => $run->id]);
+                                        $reviewRoute = route('companies.payroll.runs.path.review', ['company' => $currentCompanySlug, 'run' => $run->id]);
                                     }
                                 }
                             ?>

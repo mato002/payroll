@@ -16,7 +16,7 @@ class SettingsController extends Controller
     public function update(Request $request)
     {
         // TODO: Implement settings update
-        return redirect()->route('settings.index', ['company' => currentCompany()?->slug])
+        return redirect()->route('companies.settings.index', ['company' => currentCompany()?->slug])
             ->with('success', 'Settings updated successfully.');
     }
 }

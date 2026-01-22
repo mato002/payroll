@@ -25,7 +25,7 @@
                         if (Route::has('companies.payroll.runs.path.wizard.create')) {
                             $wizardRoute = route('companies.payroll.runs.path.wizard.create', ['company' => $companySlug]);
                         } elseif (Route::has('payroll.runs.wizard.create')) {
-                            $wizardRoute = route('payroll.runs.wizard.create', ['company' => $companySlug]);
+                            $wizardRoute = route('companies.payroll.runs.path.wizard.create', ['company' => $companySlug]);
                         }
                     }
                 ?>

@@ -69,7 +69,7 @@ class SubscriptionController extends Controller
             ->first();
 
         if (!$currentSubscription) {
-            return redirect()->route('subscriptions.index')
+            return redirect()->route('companies.subscriptions.index', ['company' => currentCompany()?->slug])
                 ->with('error', 'No active subscription found.');
         }
 
@@ -102,7 +102,7 @@ class SubscriptionController extends Controller
             ->first();
 
         if (!$currentSubscription) {
-            return redirect()->route('subscriptions.index')
+            return redirect()->route('companies.subscriptions.index', ['company' => currentCompany()?->slug])
                 ->with('error', 'No active subscription found.');
         }
 
@@ -187,7 +187,7 @@ class SubscriptionController extends Controller
             ->first();
 
         if (!$currentSubscription) {
-            return redirect()->route('subscriptions.index')
+            return redirect()->route('companies.subscriptions.index', ['company' => currentCompany()?->slug])
                 ->with('error', 'No active subscription found.');
         }
 

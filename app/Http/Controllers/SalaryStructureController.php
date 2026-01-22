@@ -133,7 +133,7 @@ class SalaryStructureController extends Controller
             return $structure;
         });
 
-        return redirect()->route('salary-structures.index')
+        return redirect()->route('companies.salary-structures.index', ['company' => request()->route('company')])
             ->with('success', 'Salary structure created successfully.');
     }
 
@@ -253,7 +253,7 @@ class SalaryStructureController extends Controller
             }
         });
 
-        return redirect()->route('salary-structures.index')
+        return redirect()->route('companies.salary-structures.index', ['company' => request()->route('company')])
             ->with('success', 'Salary structure updated successfully.');
     }
 
@@ -264,13 +264,13 @@ class SalaryStructureController extends Controller
     {
         // Check if structure is assigned to any employees
         if ($salaryStructure->employeeAssignments()->exists()) {
-            return redirect()->route('salary-structures.index')
+            return redirect()->route('companies.salary-structures.index', ['company' => request()->route('company')])
                 ->with('error', 'Cannot delete salary structure that is assigned to employees.');
         }
 
         $salaryStructure->delete();
 
-        return redirect()->route('salary-structures.index')
+        return redirect()->route('companies.salary-structures.index', ['company' => request()->route('company')])
             ->with('success', 'Salary structure deleted successfully.');
     }
 }

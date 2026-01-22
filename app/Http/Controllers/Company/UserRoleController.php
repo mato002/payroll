@@ -21,7 +21,7 @@ class UserRoleController extends Controller
     public function store(Request $request)
     {
         // TODO: Implement user creation
-        return redirect()->route('users-roles.index', ['company' => currentCompany()?->slug]);
+        return redirect()->route('companies.users-roles.index', ['company' => currentCompany()?->slug]);
     }
 
     public function edit($user)
@@ -32,6 +32,6 @@ class UserRoleController extends Controller
     public function update(Request $request, $user)
     {
         // TODO: Implement user update
-        return redirect()->route('users-roles.index', ['company' => currentCompany()?->slug]);
+        return redirect()->route('companies.users-roles.index', ['company' => currentCompany()?->slug]);
     }
 }
