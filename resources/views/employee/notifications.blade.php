@@ -16,7 +16,7 @@
             </div>
 
             @if($notifications->where('read_at', null)->count() > 0)
-                <form method="POST" action="{{ route('employee.notifications.read-all', ['company' => currentCompany()?->slug]) }}">
+                <form method="POST" action="{{ route('companies.employee.notifications.read-all', ['company' => currentCompany()?->slug]) }}">
                     @csrf
                     <button
                         type="submit"
@@ -52,7 +52,7 @@
                             </p>
                         </div>
                         @if(!$notification->read_at)
-                            <form method="POST" action="{{ route('employee.notifications.read', ['company' => currentCompany()?->slug, 'id' => $notification->id]) }}">
+                            <form method="POST" action="{{ route('companies.employee.notifications.read', ['company' => currentCompany()?->slug, 'id' => $notification->id]) }}">
                                 @csrf
                                 <button
                                     type="submit"

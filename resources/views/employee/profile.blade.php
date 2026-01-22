@@ -18,7 +18,7 @@
 
         {{-- Profile Form --}}
         <div class="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950">
-            <form method="POST" action="{{ route('employee.profile.update', ['company' => currentCompany()?->slug]) }}">
+            <form method="POST" action="{{ route('companies.employee.profile.update', ['company' => currentCompany()?->slug]) }}">
                 @csrf
                 @method('PUT')
 

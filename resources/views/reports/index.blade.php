@@ -19,7 +19,7 @@
                 <p class="text-gray-600 mb-4 text-sm">
                     Generate tax summary reports for employees with total gross pay and tax deductions.
                 </p>
-                <a href="{{ route('reports.tax.index') }}" 
+                <a href="{{ route('companies.reports.tax.index', ['company' => currentCompany()?->slug]) }}" 
                    class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
                     Generate Report
                 </a>
@@ -38,7 +38,7 @@
                 <p class="text-gray-600 mb-4 text-sm">
                     Generate pension and NSSF contribution reports with employee and employer contributions.
                 </p>
-                <a href="{{ route('reports.pension.index') }}" 
+                <a href="{{ route('companies.reports.pension.index', ['company' => currentCompany()?->slug]) }}" 
                    class="inline-block bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
                     Generate Report
                 </a>
@@ -57,7 +57,7 @@
                 <p class="text-gray-600 mb-4 text-sm">
                     Generate comprehensive annual payroll summaries for financial reporting and compliance.
                 </p>
-                <a href="{{ route('reports.annual.index') }}" 
+                <a href="{{ route('companies.reports.annual.index', ['company' => currentCompany()?->slug]) }}" 
                    class="inline-block bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors">
                     Generate Report
                 </a>

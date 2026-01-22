@@ -13,8 +13,9 @@
             </div>
             <div class="flex items-center gap-3">
                 @php
-                    $currentCompanySlug = request()->route('company');
-                    $exportUrl = route('employees.export', ['company' => $currentCompanySlug]);
+                    $company = currentCompany();
+                    $currentCompanySlug = $company?->slug;
+                    $exportUrl = $currentCompanySlug ? route('companies.employees.export', ['company' => $currentCompanySlug]) : '#';
                 @endphp
                 <x-export-dropdown 
                     :exportUrl="$exportUrl"
@@ -36,7 +37,7 @@
 
         {{-- Search and Filters --}}
         <div class="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <form method="GET" action="{{ route('employees.index') }}" class="space-y-4 md:space-y-0 md:flex md:items-end md:gap-4">
+            <form method="GET" action="{{ route('companies.employees.index', ['company' => $currentCompanySlug]) }}" class="space-y-4 md:space-y-0 md:flex md:items-end md:gap-4">
                 {{-- Search --}}
                 <div class="flex-1">
                     <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -101,7 +102,7 @@
                         Filter
                     </button>
                     <a
-                        href="{{ route('employees.index') }}"
+                        href="{{ route('companies.employees.index', ['company' => $currentCompanySlug]) }}"
                         class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                     >
                         Clear
@@ -205,7 +206,7 @@
                                             </svg>
                                         </button>
                                         <a
-                                            href="{{ route('employees.show', $employee) }}"
+                                            href="{{ route('companies.employees.show', ['company' => $currentCompanySlug, 'employee' => $employee]) }}"
                                             class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300"
                                             title="View"
                                         >

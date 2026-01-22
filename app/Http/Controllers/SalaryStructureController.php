@@ -18,7 +18,7 @@ class SalaryStructureController extends Controller
     {
         $company = app(CurrentCompany::class)->get();
         
-        $structures = SalaryStructure::where('company_id', $company->id())
+        $structures = SalaryStructure::where('company_id', $company->id)
             ->withCount('employeeAssignments')
             ->orderBy('name')
             ->get();
@@ -67,7 +67,7 @@ class SalaryStructureController extends Controller
         $structure = DB::transaction(function () use ($validated, $company) {
             // Create salary structure
             $structure = SalaryStructure::create([
-                'company_id' => $company->id(),
+                'company_id' => $company->id,
                 'name' => $validated['name'],
                 'description' => $validated['description'] ?? null,
                 'pay_frequency' => $validated['pay_frequency'],
@@ -80,7 +80,7 @@ class SalaryStructureController extends Controller
 
             // Add base salary component
             SalaryStructureComponent::create([
-                'company_id' => $company->id(),
+                'company_id' => $company->id,
                 'salary_structure_id' => $structure->id,
                 'name' => 'Basic Salary',
                 'code' => 'basic_salary',
@@ -96,7 +96,7 @@ class SalaryStructureController extends Controller
             if (!empty($validated['allowances'])) {
                 foreach ($validated['allowances'] as $allowance) {
                     SalaryStructureComponent::create([
-                        'company_id' => $company->id(),
+                        'company_id' => $company->id,
                         'salary_structure_id' => $structure->id,
                         'name' => $allowance['name'],
                         'code' => Str::slug($allowance['name'], '_'),
@@ -115,7 +115,7 @@ class SalaryStructureController extends Controller
             if (!empty($validated['deductions'])) {
                 foreach ($validated['deductions'] as $deduction) {
                     SalaryStructureComponent::create([
-                        'company_id' => $company->id(),
+                        'company_id' => $company->id,
                         'salary_structure_id' => $structure->id,
                         'name' => $deduction['name'],
                         'code' => Str::slug($deduction['name'], '_'),
@@ -202,7 +202,7 @@ class SalaryStructureController extends Controller
 
             // Add base salary component
             SalaryStructureComponent::create([
-                'company_id' => $company->id(),
+                'company_id' => $company->id,
                 'salary_structure_id' => $salaryStructure->id,
                 'name' => 'Basic Salary',
                 'code' => 'basic_salary',
@@ -218,7 +218,7 @@ class SalaryStructureController extends Controller
             if (!empty($validated['allowances'])) {
                 foreach ($validated['allowances'] as $allowance) {
                     SalaryStructureComponent::create([
-                        'company_id' => $company->id(),
+                        'company_id' => $company->id,
                         'salary_structure_id' => $salaryStructure->id,
                         'name' => $allowance['name'],
                         'code' => Str::slug($allowance['name'], '_'),
@@ -237,7 +237,7 @@ class SalaryStructureController extends Controller
             if (!empty($validated['deductions'])) {
                 foreach ($validated['deductions'] as $deduction) {
                     SalaryStructureComponent::create([
-                        'company_id' => $company->id(),
+                        'company_id' => $company->id,
                         'salary_structure_id' => $salaryStructure->id,
                         'name' => $deduction['name'],
                         'code' => Str::slug($deduction['name'], '_'),

@@ -48,8 +48,11 @@
             </div>
 
             {{-- Form --}}
+            @php
+                $companySlug = $currentCompanySlug ?? currentCompany()?->slug;
+            @endphp
             <form
-                x-bind:action="editingId ? '{{ url('/admin/employees') }}/' + editingId : '{{ route('employees.store') }}'"
+                x-bind:action="editingId ? '{{ url('/companies/' . $companySlug . '/admin/employees') }}/' + editingId : '{{ route('companies.employees.store', ['company' => $companySlug]) }}'"
                 method="POST"
                 class="max-h-[calc(100vh-200px)] overflow-y-auto"
             >

@@ -281,34 +281,34 @@
                     <nav class="space-y-1 px-3 text-sm">
                         @auth
                             @php
-                                $currentCompanySlug = request()->route('company') ?? currentCompany()?->slug;
+                                $company = currentCompany();
+                                $currentCompanySlug = $company?->slug;
                                 $isEmployee = false;
                                 $isAdmin = false;
                                 
                                 // Only check roles if we have a company context
-                                if ($currentCompanySlug) {
-                                    $currentCompany = currentCompany();
-                                    if ($currentCompany && Auth::check()) {
-                                        try {
-                                            $isEmployee = Auth::user()?->hasRoleInCompany('employee', $currentCompany->id) ?? false;
-                                            $isAdmin = (Auth::user()?->hasRoleInCompany('company_admin', $currentCompany->id) ?? false) || 
-                                                      (Auth::user()?->hasRoleInCompany('payroll_officer', $currentCompany->id) ?? false);
-                                        } catch (\Exception $e) {
-                                            // If hasRoleInCompany method doesn't exist or fails, default to false
-                                            $isEmployee = false;
-                                            $isAdmin = false;
-                                        }
+                                if ($company && Auth::check()) {
+                                    try {
+                                        $isEmployee = Auth::user()?->hasRoleInCompany('employee', $company->id) ?? false;
+                                        $isAdmin = (Auth::user()?->hasRoleInCompany('company_admin', $company->id) ?? false) || 
+                                                  (Auth::user()?->hasRoleInCompany('payroll_officer', $company->id) ?? false);
+                                    } catch (\Exception $e) {
+                                        // If hasRoleInCompany method doesn't exist or fails, default to false
+                                        $isEmployee = false;
+                                        $isAdmin = false;
                                     }
                                 }
                                 
-                                // Helper function to get route (prefers path-based, falls back to subdomain)
+                                // Helper function to get route (prefers path-based)
                                 $getRoute = function($pathRoute, $subdomainRoute, $params = []) use ($currentCompanySlug) {
-                                    if ($currentCompanySlug && Route::has($pathRoute)) {
+                                    if ($currentCompanySlug) {
                                         $params['company'] = $currentCompanySlug;
-                                        return route($pathRoute, $params);
-                                    } elseif ($currentCompanySlug && Route::has($subdomainRoute)) {
-                                        $params['company'] = $currentCompanySlug;
-                                        return route($subdomainRoute, $params);
+                                        // Always use path-based route
+                                        if (Route::has($pathRoute)) {
+                                            return route($pathRoute, $params);
+                                        } elseif (Route::has($subdomainRoute)) {
+                                            return route($subdomainRoute, $params);
+                                        }
                                     }
                                     return '#';
                                 };
@@ -408,7 +408,7 @@
                                 @if($isEmployee)
                                     {{-- Employee Navigation --}}
                                     @if(Route::has('employee.dashboard'))
-                                        <a href="{{ route('employee.dashboard', ['company' => $currentCompanySlug]) }}"
+                                        <a href="{{ route('companies.employee.dashboard', ['company' => $currentCompanySlug]) }}"
                                            @click="sidebarOpen = false"
                                            class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('employee.dashboard') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
@@ -421,7 +421,7 @@
                                     @endif
 
                                     @if(Route::has('employee.payslips.index'))
-                                        <a href="{{ route('employee.payslips.index', ['company' => $currentCompanySlug]) }}"
+                                        <a href="{{ route('companies.employee.payslips.index', ['company' => $currentCompanySlug]) }}"
                                            @click="sidebarOpen = false"
                                            class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('employee.payslips.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
@@ -435,7 +435,7 @@
                                     @endif
 
                                     @if(Route::has('employee.profile.show'))
-                                        <a href="{{ route('employee.profile.show', ['company' => $currentCompanySlug]) }}"
+                                        <a href="{{ route('companies.employee.profile.show', ['company' => $currentCompanySlug]) }}"
                                            @click="sidebarOpen = false"
                                            class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('employee.profile.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
@@ -448,7 +448,7 @@
                                     @endif
 
                                     @if(Route::has('employee.notifications.index'))
-                                        <a href="{{ route('employee.notifications.index', ['company' => $currentCompanySlug]) }}"
+                                        <a href="{{ route('companies.employee.notifications.index', ['company' => $currentCompanySlug]) }}"
                                            @click="sidebarOpen = false"
                                            class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('employee.notifications.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
@@ -461,7 +461,7 @@
                                     @endif
 
                                     @if(Route::has('employee.help.index'))
-                                        <a href="{{ route('employee.help.index', ['company' => $currentCompanySlug]) }}"
+                                        <a href="{{ route('companies.employee.help.index', ['company' => $currentCompanySlug]) }}"
                                            @click="sidebarOpen = false"
                                            class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('employee.help.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
@@ -476,8 +476,8 @@
                                     {{-- Company Admin (HR/Owner) Navigation --}}
                                 
                                     {{-- Dashboard --}}
-                                    @if($currentCompanySlug && (Route::has('company.admin.dashboard.path') || Route::has('company.admin.dashboard')))
-                                        <a href="{{ $getRoute('company.admin.dashboard.path', 'company.admin.dashboard') }}"
+                                    @if($currentCompanySlug && (Route::has('companies.company.admin.dashboard.path') || Route::has('company.admin.dashboard')))
+                                        <a href="{{ $getRoute('companies.company.admin.dashboard.path', 'company.admin.dashboard') }}"
                                            class="flex items-center rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('company.admin.dashboard*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
                                                 <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -502,8 +502,8 @@
                                 @endif
 
                                 {{-- Payroll --}}
-                                @if($currentCompanySlug && (Route::has('payroll.runs.path.wizard.create') || Route::has('payroll.runs.wizard.create')))
-                                    <a href="{{ $getRoute('payroll.runs.path.wizard.create', 'payroll.runs.wizard.create') }}"
+                                @if($currentCompanySlug && (Route::has('companies.payroll.runs.path.wizard.create') || Route::has('payroll.runs.wizard.create')))
+                                    <a href="{{ $getRoute('companies.payroll.runs.path.wizard.create', 'payroll.runs.wizard.create') }}"
                                        class="flex items-center rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('payroll.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                         <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
                                             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -527,6 +527,83 @@
                                     </a>
                                 @endif
 
+                                {{-- Payroll Runs --}}
+                                @if($currentCompanySlug && (Route::has('companies.company.admin.dashboard.path') || Route::has('company.admin.dashboard')))
+                                    <a href="{{ $getRoute('companies.company.admin.dashboard.path', 'company.admin.dashboard') }}#payroll-runs"
+                                       class="flex items-center rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('payroll.runs.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
+                                        <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5h16.5M3.75 9.75h16.5m-11.25 5.25h11.25M3.75 19.5h4.5" />
+                                            </svg>
+                                        </span>
+                                        <span>Payroll Runs</span>
+                                    </a>
+                                @endif
+
+                                {{-- Payslips --}}
+                                @if($currentCompanySlug && (Route::has('companies.payslips.index') || Route::has('payslips.index')))
+                                    <a href="{{ $getRoute('companies.payslips.index', 'payslips.index') }}"
+                                       class="flex items-center rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('payslips.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
+                                        <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                            </svg>
+                                        </span>
+                                        <span>Payslips</span>
+                                    </a>
+                                @endif
+
+                                {{-- Reports --}}
+                                @if($currentCompanySlug && (Route::has('companies.reports.index') || Route::has('reports.index')))
+                                    <a href="{{ $getRoute('companies.reports.index', 'reports.index') }}"
+                                       class="flex items-center rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('reports.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
+                                        <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                                            </svg>
+                                        </span>
+                                        <span>Reports</span>
+                                    </a>
+                                @endif
+
+                                {{-- Tax & Compliance --}}
+                                @if($currentCompanySlug && (Route::has('companies.reports.tax.index') || Route::has('reports.tax.index')))
+                                    <a href="{{ $getRoute('companies.reports.tax.index', 'reports.tax.index') }}"
+                                       class="flex items-center rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('reports.tax.*') || request()->routeIs('reports.pension.*') || request()->routeIs('reports.annual.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
+                                        <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                                            </svg>
+                                        </span>
+                                        <span>Tax & Compliance</span>
+                                    </a>
+                                @endif
+
+                                {{-- Users & Roles --}}
+                                @if($currentCompanySlug && (Route::has('companies.users-roles.index') || Route::has('users-roles.index')))
+                                    <a href="{{ $getRoute('companies.users-roles.index', 'users-roles.index') }}"
+                                       class="flex items-center rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('users-roles.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
+                                        <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                                            </svg>
+                                        </span>
+                                        <span>Users & Roles</span>
+                                    </a>
+                                @endif
+
+                                {{-- Billing & Subscription --}}
+                                @if($currentCompanySlug && (Route::has('companies.subscriptions.index') || Route::has('subscriptions.index')))
+                                    <a href="{{ $getRoute('companies.subscriptions.index', 'subscriptions.index') }}"
+                                       class="flex items-center rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('subscriptions.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
+                                        <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15.75m9.75-12v6.75m0 0v6.75m0-6.75h3.75m-3.75 0h-3.75" />
+                                            </svg>
+                                        </span>
+                                        <span>Billing & Subscription</span>
+                                    </a>
+                                @endif
 
                                 {{-- Settings --}}
                                 @if($currentCompanySlug && (Route::has('companies.settings.index') || Route::has('settings.index')))
@@ -596,7 +673,10 @@
                     <div class="flex-1 overflow-y-auto py-4">
                         <nav class="space-y-1 px-3 text-sm">
                             @auth
-                                @php($currentCompanySlug = request()->route('company'))
+                                @php
+                                    $company = currentCompany();
+                                    $currentCompanySlug = $company?->slug;
+                                @endphp
 
                                 {{-- Platform (super admin) navigation --}}
                                 @if(request()->routeIs('admin.*') && Route::has('admin.dashboard'))
@@ -695,8 +775,8 @@
                                     {{-- Company Admin (HR/Owner) Navigation --}}
                                     
                                     {{-- Dashboard --}}
-                                    @if($currentCompanySlug && (Route::has('company.admin.dashboard.path') || Route::has('company.admin.dashboard')))
-                                        <a href="{{ $getRoute('company.admin.dashboard.path', 'company.admin.dashboard') }}"
+                                    @if($currentCompanySlug && (Route::has('companies.company.admin.dashboard.path') || Route::has('company.admin.dashboard')))
+                                        <a href="{{ $getRoute('companies.company.admin.dashboard.path', 'company.admin.dashboard') }}"
                                            @click="sidebarOpen = false"
                                            class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('company.admin.dashboard*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
@@ -723,8 +803,8 @@
                                     @endif
 
                                     {{-- Payroll --}}
-                                    @if($currentCompanySlug && (Route::has('payroll.runs.path.wizard.create') || Route::has('payroll.runs.wizard.create')))
-                                        <a href="{{ $getRoute('payroll.runs.path.wizard.create', 'payroll.runs.wizard.create') }}"
+                                    @if($currentCompanySlug && (Route::has('companies.payroll.runs.path.wizard.create') || Route::has('payroll.runs.wizard.create')))
+                                        <a href="{{ $getRoute('companies.payroll.runs.path.wizard.create', 'payroll.runs.wizard.create') }}"
                                            @click="sidebarOpen = false"
                                            class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('payroll.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
@@ -751,8 +831,8 @@
                                     @endif
 
                                     {{-- Payroll Runs --}}
-                                    @if($currentCompanySlug && (Route::has('company.admin.dashboard.path') || Route::has('company.admin.dashboard')))
-                                        <a href="{{ $getRoute('company.admin.dashboard.path', 'company.admin.dashboard') }}#payroll-runs"
+                                    @if($currentCompanySlug && (Route::has('companies.company.admin.dashboard.path') || Route::has('company.admin.dashboard')))
+                                        <a href="{{ $getRoute('companies.company.admin.dashboard.path', 'company.admin.dashboard') }}#payroll-runs"
                                            @click="sidebarOpen = false"
                                            class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('payroll.runs.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
@@ -765,10 +845,10 @@
                                     @endif
 
                                     {{-- Payslips --}}
-                                    @if(Route::has('employee.payslips.index'))
-                                        <a href="{{ route('employee.payslips.index', ['company' => $currentCompanySlug]) }}"
+                                    @if($currentCompanySlug && (Route::has('companies.payslips.index') || Route::has('payslips.index')))
+                                        <a href="{{ $getRoute('companies.payslips.index', 'payslips.index') }}"
                                            @click="sidebarOpen = false"
-                                           class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('employee.payslips.*') || request()->routeIs('payslips.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
+                                           class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('payslips.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
                                                 <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-6.75A2.25 2.25 0 0017.25 5.25H6.75A2.25 2.25 0 004.5 7.5v9A2.25 2.25 0 006.75 18.75h6.75" />
@@ -780,8 +860,8 @@
                                     @endif
 
                                     {{-- Reports --}}
-                                    @if(Route::has('reports.index'))
-                                        <a href="{{ route('reports.index', ['company' => $currentCompanySlug]) }}"
+                                    @if($currentCompanySlug && (Route::has('companies.reports.index') || Route::has('reports.index')))
+                                        <a href="{{ $getRoute('companies.reports.index', 'reports.index') }}"
                                            @click="sidebarOpen = false"
                                            class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('reports.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
@@ -794,8 +874,8 @@
                                     @endif
 
                                     {{-- Tax & Compliance --}}
-                                    @if(Route::has('reports.tax.index'))
-                                        <a href="{{ route('reports.tax.index', ['company' => $currentCompanySlug]) }}"
+                                    @if($currentCompanySlug && (Route::has('companies.reports.tax.index') || Route::has('reports.tax.index')))
+                                        <a href="{{ $getRoute('companies.reports.tax.index', 'reports.tax.index') }}"
                                            @click="sidebarOpen = false"
                                            class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('reports.tax.*') || request()->routeIs('reports.pension.*') || request()->routeIs('reports.annual.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
@@ -808,9 +888,10 @@
                                     @endif
 
                                     {{-- Users & Roles --}}
-                                    <a href="#"
-                                       @click="sidebarOpen = false"
-                                       class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">
+                                    @if($currentCompanySlug && (Route::has('companies.users-roles.index') || Route::has('users-roles.index')))
+                                        <a href="{{ $getRoute('companies.users-roles.index', 'users-roles.index') }}"
+                                           @click="sidebarOpen = false"
+                                           class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('users-roles.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                         <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
                                             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
@@ -820,8 +901,8 @@
                                     </a>
 
                                     {{-- Billing & Subscription --}}
-                                    @if(Route::has('subscriptions.index'))
-                                        <a href="{{ route('subscriptions.index', ['company' => $currentCompanySlug]) }}"
+                                    @if($currentCompanySlug && (Route::has('companies.subscriptions.index') || Route::has('subscriptions.index')))
+                                        <a href="{{ $getRoute('companies.subscriptions.index', 'subscriptions.index') }}"
                                            @click="sidebarOpen = false"
                                            class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('subscriptions.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
@@ -845,6 +926,7 @@
                                         </span>
                                         <span>Settings</span>
                                     </a>
+                                @endif
                             @endif
                             @endauth
                         </nav>

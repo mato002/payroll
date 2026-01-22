@@ -5,8 +5,16 @@
     'secondaryActionLabel' => 'View Documentation',
 ])
 
+@php
+    $company = currentCompany();
+    $companySlug = $company?->slug;
+    $defaultAction = $companySlug && Route::has('payroll.runs.wizard.create') 
+        ? route('companies.payroll.runs.path.wizard.create', ['company' => $companySlug]) 
+        : null;
+@endphp
+
 <x-empty-state
-    :action="$action ?? (Route::has('payroll.runs.wizard.create') ? route('payroll.runs.wizard.create', ['company' => request()->route('company')]) : null)"
+    :action="$action ?? $defaultAction"
     :action-label="$actionLabel"
     :secondary-action="$secondaryAction"
     :secondary-action-label="$secondaryActionLabel"

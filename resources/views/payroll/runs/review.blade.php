@@ -249,7 +249,7 @@
                             {{-- Reject Form --}}
                             <form
                                 method="POST"
-                                action="{{ route('payroll.runs.reject', ['company' => $run->company->slug, 'run' => $run->id]) }}"
+                                action="{{ route('companies.payroll.runs.path.reject', ['company' => $run->company->slug, 'run' => $run->id]) }}"
                                 class="flex-1"
                                 x-data="{ showReject: false }"
                             >
@@ -289,7 +289,7 @@
                             {{-- Approve Form --}}
                             <form
                                 method="POST"
-                                action="{{ route('payroll.runs.approve', ['company' => $run->company->slug, 'run' => $run->id]) }}"
+                                action="{{ route('companies.payroll.runs.path.approve', ['company' => $run->company->slug, 'run' => $run->id]) }}"
                                 class="flex items-center gap-2"
                             >
                                 @csrf

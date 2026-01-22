@@ -18,11 +18,14 @@
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
                 @php
                     $companySlug = currentCompany()?->slug;
-                    $wizardRoute = $companySlug && Route::has('payroll.runs.path.wizard.create') 
-                        ? route('payroll.runs.path.wizard.create', ['company' => $companySlug])
-                        : ($companySlug && Route::has('payroll.runs.wizard.create') 
-                            ? route('payroll.runs.wizard.create', ['company' => $companySlug])
-                            : '#');
+                    $wizardRoute = '#';
+                    if ($companySlug) {
+                        if (Route::has('companies.payroll.runs.path.wizard.create')) {
+                            $wizardRoute = route('companies.payroll.runs.path.wizard.create', ['company' => $companySlug]);
+                        } elseif (Route::has('payroll.runs.wizard.create')) {
+                            $wizardRoute = route('companies.payroll.runs.path.wizard.create', ['company' => $companySlug]);
+                        }
+                    }
                 @endphp
                 <a
                     href="{{ $wizardRoute }}"

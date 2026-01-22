@@ -12,7 +12,7 @@
                 </p>
             </div>
             <a
-                href="{{ route('salary-structures.create') }}"
+                href="{{ route('companies.salary-structures.create', ['company' => currentCompany()?->slug]) }}"
                 class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
                 <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -44,7 +44,7 @@
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating a new salary structure.</p>
                     <div class="mt-6">
                         <a
-                            href="{{ route('salary-structures.create') }}"
+                            href="{{ route('companies.salary-structures.create', ['company' => currentCompany()?->slug]) }}"
                             class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         >
                             <svg class="-ml-0.5 mr-1.5 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -81,7 +81,7 @@
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/40">
                                     <td class="whitespace-nowrap px-6 py-4">
                                         <div class="flex flex-col">
-                                            <a href="{{ route('salary-structures.show', $structure) }}" class="text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-gray-100 dark:hover:text-indigo-400">
+                                            <a href="{{ route('companies.salary-structures.show', ['company' => currentCompany()?->slug, 'salaryStructure' => $structure]) }}" class="text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-gray-100 dark:hover:text-indigo-400">
                                                 {{ $structure->name }}
                                             </a>
                                             @if($structure->description)
@@ -103,19 +103,19 @@
                                     <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                                         <div class="flex items-center justify-end gap-2">
                                             <a
-                                                href="{{ route('salary-structures.show', $structure) }}"
+                                                href="{{ route('companies.salary-structures.show', ['company' => currentCompany()?->slug, 'salaryStructure' => $structure]) }}"
                                                 class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
                                             >
                                                 View
                                             </a>
                                             <a
-                                                href="{{ route('salary-structures.edit', $structure) }}"
+                                                href="{{ route('companies.salary-structures.edit', ['company' => currentCompany()?->slug, 'salaryStructure' => $structure]) }}"
                                                 class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300"
                                             >
                                                 Edit
                                             </a>
                                             <form
-                                                action="{{ route('salary-structures.destroy', $structure) }}"
+                                                action="{{ route('companies.salary-structures.destroy', ['company' => currentCompany()?->slug, 'salaryStructure' => $structure]) }}"
                                                 method="POST"
                                                 class="inline"
                                                 onsubmit="return confirm('Are you sure you want to delete this salary structure?');"

@@ -111,7 +111,7 @@
                             </td>
                             <td class="whitespace-nowrap px-6 py-4">
                                 @if($payment->invoice)
-                                <a href="{{ route('subscriptions.invoices.download', $payment->invoice) }}" 
+                                <a href="{{ route('companies.subscriptions.invoices.download', ['company' => currentCompany()?->slug, 'invoice' => $payment->invoice]) }}" 
                                    class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
                                     {{ $payment->invoice->invoice_number }}
                                 </a>
@@ -186,7 +186,7 @@
                             Current Plan
                         </button>
                         @else
-                        <a href="{{ route('subscriptions.change-plan.show', $plan) }}" 
+                        <a href="{{ route('companies.subscriptions.change-plan.show', ['company' => currentCompany()?->slug, 'plan' => $plan]) }}" 
                            class="block w-full rounded-lg {{ $isUpgrade ? 'bg-indigo-600 hover:bg-indigo-700' : ($isDowngrade ? 'bg-gray-600 hover:bg-gray-700' : 'bg-indigo-600 hover:bg-indigo-700') }} px-4 py-2 text-center text-sm font-semibold text-white shadow-sm transition">
                             {{ $isUpgrade ? 'Upgrade' : ($isDowngrade ? 'Downgrade' : 'Select Plan') }}
                         </a>
@@ -244,7 +244,7 @@
                                 </span>
                             </td>
                             <td class="whitespace-nowrap px-6 py-4 text-right">
-                                <a href="{{ route('subscriptions.invoices.download', $invoice) }}" 
+                                <a href="{{ route('companies.subscriptions.invoices.download', ['company' => currentCompany()?->slug, 'invoice' => $invoice]) }}" 
                                    class="inline-flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800">
                                     <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -275,7 +275,7 @@
                         If you cancel your subscription, you'll continue to have access until the end of your current billing period.
                     </p>
                 </div>
-                <form method="POST" action="{{ route('subscriptions.cancel') }}" 
+                <form method="POST" action="{{ route('companies.subscriptions.cancel', ['company' => currentCompany()?->slug]) }}" 
                       onsubmit="return confirm('Are you sure you want to cancel your subscription?')">
                     @csrf
                     <input type="hidden" name="confirm" value="1">

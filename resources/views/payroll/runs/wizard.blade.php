@@ -71,7 +71,15 @@
 
         {{-- Wizard content --}}
         <div class="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950">
-            <form method="POST" action="{{ route('payroll.runs.wizard.store', ['company' => currentCompany()?->slug]) }}">
+            @php
+                $wizardStoreRoute = Route::has('companies.payroll.runs.path.wizard.store') 
+                    ? 'companies.payroll.runs.path.wizard.store' 
+                    : 'payroll.runs.wizard.store';
+                $wizardCreateRoute = Route::has('companies.payroll.runs.path.wizard.create') 
+                    ? 'companies.payroll.runs.path.wizard.create' 
+                    : 'payroll.runs.wizard.create';
+            @endphp
+            <form method="POST" action="{{ route($wizardStoreRoute, ['company' => currentCompany()?->slug]) }}">
                 @csrf
                 <input type="hidden" name="step" value="{{ $step }}">
 
@@ -274,7 +282,7 @@
                     <div>
                         @if($step > 1)
                             <a
-                                href="{{ route('payroll.runs.wizard.create', ['company' => currentCompany()?->slug, 'step' => $step - 1]) }}"
+                                href="{{ route($wizardCreateRoute, ['company' => currentCompany()?->slug, 'step' => $step - 1]) }}"
                                 class="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-3 sm:py-2 text-sm sm:text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800 min-h-[44px] w-full sm:w-auto"
                             >
                                 {{ __('Back') }}

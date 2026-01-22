@@ -82,13 +82,14 @@
                     <td class="whitespace-nowrap px-4 py-2 align-top text-right text-xs">
                         <div class="inline-flex items-center gap-1">
                             @php
-                                $currentCompanySlug = request()->route('company') ?? currentCompany()?->slug;
+                                $company = currentCompany();
+                                $currentCompanySlug = $company?->slug;
                                 $reviewRoute = null;
                                 if ($currentCompanySlug) {
-                                    if (Route::has('payroll.runs.path.review')) {
-                                        $reviewRoute = route('payroll.runs.path.review', ['company' => $currentCompanySlug, 'run' => $run->id]);
+                                    if (Route::has('companies.payroll.runs.path.review')) {
+                                        $reviewRoute = route('companies.payroll.runs.path.review', ['company' => $currentCompanySlug, 'run' => $run->id]);
                                     } elseif (Route::has('payroll.runs.review')) {
-                                        $reviewRoute = route('payroll.runs.review', ['company' => $currentCompanySlug, 'run' => $run->id]);
+                                        $reviewRoute = route('companies.payroll.runs.path.review', ['company' => $currentCompanySlug, 'run' => $run->id]);
                                     }
                                 }
                             @endphp

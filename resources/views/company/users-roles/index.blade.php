@@ -1,0 +1,132 @@
+@extends('layouts.layout')
+
+@section('title', __('Users & Roles'))
+
+@section('content')
+<div class="flex-1">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        {{-- Header --}}
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ __('Users & Roles') }}</h1>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    {{ __('Manage company users and their roles') }}
+                </p>
+            </div>
+            <a
+                href="{{ route('companies.users-roles.create', ['company' => currentCompany()?->slug]) }}"
+                class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+            >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                {{ __('Add User') }}
+            </a>
+        </div>
+
+        {{-- Users Table --}}
+        <div class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ __('Name') }}
+                            </th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ __('Email') }}
+                            </th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ __('Role') }}
+                            </th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ __('Status') }}
+                            </th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ __('Joined') }}
+                            </th>
+                            <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ __('Actions') }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                        <span class="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                                            {{ substr(auth()->user()->name ?? 'U', 0, 1) }}
+                                        </span>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ auth()->user()->name }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                                {{ auth()->user()->email }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                    {{ __('Admin') }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                    {{ __('Active') }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                                {{ auth()->user()->created_at?->format('Y-m-d') ?? 'N/A' }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a
+                                        href="{{ route('companies.users-roles.edit', ['company' => currentCompany()?->slug, 'user' => auth()->user()->id]) }}"
+                                        class="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                                    >
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                        {{ __('Edit') }}
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Empty State --}}
+            <div class="px-6 py-12 text-center">
+                <svg class="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM6 20a9 9 0 0118 0v2h2v-2c0-4.165-2.224-7.798-5.526-9.79M6.464 4.536A9.978 9.978 0 0115 4c4.418 0 8.27 2.943 9.526 7.21"></path>
+                </svg>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ __('No additional users added yet. Add your first team member to get started.') }}
+                </p>
+            </div>
+        </div>
+
+        {{-- Help Section --}}
+        <div class="mt-8 rounded-lg border border-blue-200 bg-blue-50 p-6 dark:border-blue-900/30 dark:bg-blue-900/20">
+            <div class="flex gap-3">
+                <div class="h-6 w-6 flex-shrink-0 text-blue-600 dark:text-blue-400">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                        {{ __('User Management') }}
+                    </h3>
+                    <p class="mt-1 text-sm text-blue-800 dark:text-blue-200">
+                        {{ __('Add team members to your company and assign them roles. Admin users can manage payroll and view reports, while regular employees can only view their own payslips.') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

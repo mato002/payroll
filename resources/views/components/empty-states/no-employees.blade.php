@@ -5,10 +5,21 @@
     'secondaryActionLabel' => 'Import Employees',
 ])
 
+@php
+    $company = currentCompany();
+    $companySlug = $company?->slug;
+    $defaultAction = $companySlug && Route::has('companies.employees.create') 
+        ? route('companies.employees.create', ['company' => $companySlug]) 
+        : null;
+    $defaultSecondaryAction = $companySlug && Route::has('companies.employees.import.create') 
+        ? route('companies.employees.import.create', ['company' => $companySlug]) 
+        : null;
+@endphp
+
 <x-empty-state
-    :action="$action ?? (Route::has('employees.create') ? route('employees.create', ['company' => request()->route('company')]) : null)"
+    :action="$action ?? $defaultAction"
     :action-label="$actionLabel"
-    :secondary-action="$secondaryAction ?? (Route::has('employees.import.create') ? route('employees.import.create', ['company' => request()->route('company')]) : null)"
+    :secondary-action="$secondaryAction ?? $defaultSecondaryAction"
     :secondary-action-label="$secondaryActionLabel"
     title="No employees yet"
     description="Get started by adding your first employee to the system. You can add employees individually or import them in bulk from a spreadsheet."

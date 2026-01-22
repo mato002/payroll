@@ -68,8 +68,8 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        $salaryStructures = SalaryStructure::all();
-        return view('employees.create', compact('salaryStructures'));
+        // Employees are created via modal in the index view
+        return redirect()->route('companies.employees.index', ['company' => request()->route('company')]);
     }
 
     /**
@@ -129,7 +129,11 @@ class EmployeeController extends Controller
             $q->latest()->limit(10);
         }]);
 
-        return view('employees.show', compact('employee'));
+        // Return as JSON for AJAX requests or redirect to index
+        if (request()->expectsJson()) {
+            return response()->json($employee);
+        }
+        return redirect()->route('companies.employees.index', ['company' => request()->route('company')]);
     }
 
     /**
@@ -139,7 +143,11 @@ class EmployeeController extends Controller
     {
         $salaryStructures = SalaryStructure::all();
         $employee->load('currentSalaryStructure');
-        return view('employees.edit', compact('employee', 'salaryStructures'));
+        // Return as JSON for modal editing or redirect to index
+        if (request()->expectsJson()) {
+            return response()->json(compact('employee', 'salaryStructures'));
+        }
+        return redirect()->route('companies.employees.index', ['company' => request()->route('company')]);
     }
 
     /**

@@ -11,7 +11,7 @@
             </p>
         </div>
 
-        <form method="POST" action="{{ route('salary-structures.update', $structure) }}" class="space-y-6">
+        <form method="POST" action="{{ route('companies.salary-structures.update', ['company' => currentCompany()?->slug, 'salaryStructure' => $structure]) }}" class="space-y-6">
             @csrf
             @method('PUT')
 
@@ -73,7 +73,7 @@
             {{-- Form Actions --}}
             <div class="flex items-center justify-end gap-3">
                 <a
-                    href="{{ route('salary-structures.index') }}"
+                    href="{{ route('companies.salary-structures.index', ['company' => currentCompany()?->slug]) }}"
                     class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                     Cancel

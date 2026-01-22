@@ -136,7 +136,7 @@ class CompanySwitchController extends Controller
                     'id' => $company->id,
                     'name' => $company->name,
                     'slug' => $company->slug,
-                    'is_current' => $currentCompany && $currentCompany->id() === $company->id,
+                    'is_current' => $currentCompany && $currentCompany->id === $company->id,
                 ];
             }),
             'current_company_id' => $currentCompany?->id,

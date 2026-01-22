@@ -25,7 +25,6 @@ return [
     */
 
     'detection_methods' => [
-        'subdomain',
         'header',
         'session',
     ],

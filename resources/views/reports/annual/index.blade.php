@@ -5,7 +5,7 @@
     <div class="max-w-2xl mx-auto">
         <h1 class="text-3xl font-bold mb-6">Annual Payroll Summary Report</h1>
 
-        <form action="{{ route('reports.annual.generate') }}" method="POST" class="bg-white shadow-md rounded-lg p-6">
+        <form action="{{ route('companies.reports.annual.generate', ['company' => currentCompany()?->slug]) }}" method="POST" class="bg-white shadow-md rounded-lg p-6">
             @csrf
 
             <div class="mb-4">
@@ -42,7 +42,7 @@
                         class="flex-1 bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     Generate Report
                 </button>
-                <a href="{{ route('reports.index') }}" 
+                <a href="{{ route('companies.reports.index', ['company' => currentCompany()?->slug]) }}" 
                    class="flex-1 bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400 text-center">
                     Cancel
                 </a>

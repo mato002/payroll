@@ -131,11 +131,11 @@
 
         {{-- Actions --}}
         <div class="flex items-center justify-end gap-4">
-            <a href="{{ route('subscriptions.index') }}" 
+            <a href="{{ route('companies.subscriptions.index', ['company' => currentCompany()?->slug]) }}" 
                class="rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">
                 Cancel
             </a>
-            <form method="POST" action="{{ route('subscriptions.change-plan.store', $newPlan) }}">
+            <form method="POST" action="{{ route('companies.subscriptions.change-plan.store', ['company' => currentCompany()?->slug, 'plan' => $newPlan]) }}">
                 @csrf
                 <input type="hidden" name="confirm" value="1">
                 <button type="submit" 

@@ -95,19 +95,19 @@
                     </h3>
                     <div class="space-y-2">
                         <a
-                            href="{{ route('employee.dashboard', ['company' => currentCompany()?->slug]) }}"
+                            href="{{ route('companies.employee.dashboard', ['company' => currentCompany()?->slug]) }}"
                             class="block rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
                         >
                             {{ __('Go to Dashboard') }}
                         </a>
                         <a
-                            href="{{ route('employee.payslips.index', ['company' => currentCompany()?->slug]) }}"
+                            href="{{ route('companies.employee.payslips.index', ['company' => currentCompany()?->slug]) }}"
                             class="block rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
                         >
                             {{ __('View Payslips') }}
                         </a>
                         <a
-                            href="{{ route('employee.profile.show', ['company' => currentCompany()?->slug]) }}"
+                            href="{{ route('companies.employee.profile.show', ['company' => currentCompany()?->slug]) }}"
                             class="block rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
                         >
                             {{ __('Update Profile') }}

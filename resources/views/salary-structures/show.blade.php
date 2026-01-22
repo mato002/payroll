@@ -13,13 +13,13 @@
             </div>
             <div class="flex items-center gap-3">
                 <a
-                    href="{{ route('salary-structures.edit', $salaryStructure) }}"
+                    href="{{ route('companies.salary-structures.edit', ['company' => currentCompany()?->slug, 'salaryStructure' => $salaryStructure]) }}"
                     class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                     Edit
                 </a>
                 <a
-                    href="{{ route('salary-structures.index') }}"
+                    href="{{ route('companies.salary-structures.index', ['company' => currentCompany()?->slug]) }}"
                     class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
                 >
                     Back to List

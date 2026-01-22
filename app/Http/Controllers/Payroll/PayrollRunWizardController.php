@@ -10,6 +10,7 @@ use App\Tenancy\CurrentCompany;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
 
 class PayrollRunWizardController extends Controller
@@ -63,6 +64,18 @@ class PayrollRunWizardController extends Controller
         $step = (int) $request->input('step', 1);
 
         $wizard = $request->session()->get('payroll_run_wizard', []);
+        $company = $this->currentCompany->get();
+        
+        // Determine which route to use based on what's available
+        $wizardCreateRoute = Route::has('payroll.runs.path.wizard.create') 
+            ? 'payroll.runs.path.wizard.create' 
+            : 'payroll.runs.wizard.create';
+        
+        // Build route parameters
+        $routeParams = ['step' => $step];
+        if ($company && Route::has('payroll.runs.path.wizard.create')) {
+            $routeParams['company'] = $company->slug;
+        }
 
         if ($step === 1) {
             $validated = $request->validated();
@@ -75,22 +88,24 @@ class PayrollRunWizardController extends Controller
 
             $request->session()->put('payroll_run_wizard', $wizard);
 
-            return redirect()->route('payroll.runs.wizard.create', ['step' => 2]);
+            $routeParams['step'] = 2;
+            return redirect()->route($wizardCreateRoute, $routeParams);
         }
 
         if ($step === 2) {
             // In a more advanced version, allow excluding employees here
-            return redirect()->route('payroll.runs.wizard.create', ['step' => 3]);
+            $routeParams['step'] = 3;
+            return redirect()->route($wizardCreateRoute, $routeParams);
         }
 
         if ($step === 3) {
             // Confirm calculations preview and go to confirmation step
-            return redirect()->route('payroll.runs.wizard.create', ['step' => 4]);
+            $routeParams['step'] = 4;
+            return redirect()->route($wizardCreateRoute, $routeParams);
         }
 
         if ($step === 4) {
             // Final confirmation: create draft run with calculations, then submit for approval
-            $company = $this->currentCompany->get();
             if (! $company) {
                 return redirect()->back()->withErrors(['wizard' => 'No current company selected.']);
             }
@@ -114,12 +129,21 @@ class PayrollRunWizardController extends Controller
 
             $request->session()->forget('payroll_run_wizard');
 
+            // Determine dashboard route
+            $dashboardRoute = Route::has('company.admin.dashboard.path') 
+                ? 'company.admin.dashboard.path' 
+                : 'company.admin.dashboard';
+            $dashboardParams = $company && Route::has('company.admin.dashboard.path') 
+                ? ['company' => $company->slug] 
+                : [];
+
             return redirect()
-                ->route('company.admin.dashboard')
+                ->route($dashboardRoute, $dashboardParams)
                 ->with('status', 'Payroll run "' . $run->name . '" created, calculated, and submitted for approval.');
         }
 
-        return redirect()->route('payroll.runs.wizard.create', ['step' => 1]);
+        $routeParams['step'] = 1;
+        return redirect()->route($wizardCreateRoute, $routeParams);
     }
 }
 
