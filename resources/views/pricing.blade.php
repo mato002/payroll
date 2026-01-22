@@ -1,6 +1,6 @@
 @extends('layouts.marketing')
 
-@section('title', 'Pricing – ' . config('app.name'))
+@section('title', 'Pricing – ' . config('app.name', 'MatechPay'))
 
 @section('content')
     <section class="bg-white">

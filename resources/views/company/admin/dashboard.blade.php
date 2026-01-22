@@ -15,16 +15,24 @@
                 </p>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
+                @php
+                    $companySlug = currentCompany()?->slug;
+                    $wizardRoute = $companySlug && Route::has('payroll.runs.path.wizard.create') 
+                        ? route('payroll.runs.path.wizard.create', ['company' => $companySlug])
+                        : ($companySlug && Route::has('payroll.runs.wizard.create') 
+                            ? route('payroll.runs.wizard.create', ['company' => $companySlug])
+                            : '#');
+                @endphp
                 <a
-                    href="{{ route('payroll.runs.wizard.create', ['company' => currentCompany()?->slug]) }}"
-                    class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+                    href="{{ $wizardRoute }}"
+                    class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-3 sm:py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 min-h-[44px]"
                 >
                     {{ __('Run payroll') }}
                 </a>
                 <button
                     type="button"
-                    class="inline-flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
+                    class="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-3 sm:py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800 min-h-[44px]"
                 >
                     {{ __('Add employee') }}
                 </button>
@@ -39,9 +47,15 @@
                 :hint="__('Active employees in this company')"
             />
 
+            @php
+                $companyCurrency = currentCompany()?->currency ?? 'USD';
+                $monthlyPayrollFormatted = function_exists('format_money') 
+                    ? format_money($monthlyPayroll ?? 0, $companyCurrency)
+                    : \App\Support\Formatting::money($monthlyPayroll ?? 0, $companyCurrency);
+            @endphp
             <x-stat-card
                 :title="__('Monthly payroll')"
-                :value="format_money($monthlyPayroll ?? 0, currentCompany()?->currency ?? 'USD')"
+                :value="$monthlyPayrollFormatted"
                 :hint="$monthLabel"
             />
 
@@ -50,10 +64,18 @@
                 $currentRun = $runs->first();
             @endphp
 
+            @php
+                $payDateFormatted = null;
+                if ($currentRun) {
+                    $payDateFormatted = function_exists('format_localized_date')
+                        ? format_localized_date($currentRun->pay_date)
+                        : \App\Support\Formatting::localizedDate($currentRun->pay_date);
+                }
+            @endphp
             <x-stat-card
                 :title="__('Current run status')"
                 :value="$currentRun ? ucfirst($currentRun->status) : __('No runs')"
-                :hint="$currentRun ? __('Pay date :date', ['date' => format_localized_date($currentRun->pay_date)]) : null"
+                :hint="$currentRun ? __('Pay date :date', ['date' => $payDateFormatted]) : null"
             />
 
             <x-stat-card

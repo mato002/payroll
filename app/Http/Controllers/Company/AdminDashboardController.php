@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\PayrollRun;
 use App\Models\Payslip;
+use App\Support\Formatting;
 use Illuminate\Support\Carbon;
 
 class AdminDashboardController extends Controller
@@ -57,7 +58,7 @@ class AdminDashboardController extends Controller
             'pendingPayrollApprovals'=> $pendingPayrollApprovals,
             'pendingPayslipApprovals'=> $pendingPayslipApprovals,
             'pendingApprovalsTotal'  => $pendingApprovalsTotal,
-            'monthLabel'             => format_localized_date($startOfMonth, 'F Y'),
+            'monthLabel'             => Formatting::localizedDate($startOfMonth, 'F Y'),
         ]);
     }
 }

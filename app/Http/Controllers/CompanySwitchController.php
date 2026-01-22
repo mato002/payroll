@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Tenancy\CurrentCompany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
 class CompanySwitchController extends Controller
@@ -24,6 +25,20 @@ class CompanySwitchController extends Controller
             ->get();
 
         $currentCompany = app(CurrentCompany::class)->get();
+
+        // If user has only one company and it's already selected, redirect to dashboard
+        if ($companies->count() === 1 && $currentCompany && $currentCompany->id === $companies->first()->id) {
+            // Try path-based route first, fallback to subdomain
+            if (Route::has('companies.company.admin.dashboard.path')) {
+                $companyDashboardUrl = route('companies.company.admin.dashboard.path', ['company' => $currentCompany->slug]);
+            } else {
+                $baseDomain = config('tenancy.base_domain', 'app.test');
+                $protocol = request()->getScheme();
+                $companyDashboardUrl = sprintf('%s://%s.%s/admin/dashboard', $protocol, $currentCompany->slug, $baseDomain);
+            }
+            
+            return redirect($companyDashboardUrl);
+        }
 
         return view('companies.switch', compact('companies', 'currentCompany'));
     }
@@ -69,11 +84,17 @@ class CompanySwitchController extends Controller
         // Redirect to dashboard or return to previous page
         $redirectTo = $request->get('redirect_to');
         
-        // If no redirect specified, build the company dashboard URL on subdomain
+        // If no redirect specified, try path-based route first, fallback to subdomain
         if (! $redirectTo) {
-            $baseDomain = config('tenancy.base_domain', 'app.test');
-            $protocol = $request->getScheme();
-            $redirectTo = sprintf('%s://%s.%s/admin/dashboard', $protocol, $company->slug, $baseDomain);
+            // Try path-based route (works without subdomain setup)
+            if (Route::has('companies.company.admin.dashboard.path')) {
+                $redirectTo = route('companies.company.admin.dashboard.path', ['company' => $company->slug]);
+            } else {
+                // Fallback to subdomain URL
+                $baseDomain = config('tenancy.base_domain', 'app.test');
+                $protocol = $request->getScheme();
+                $redirectTo = sprintf('%s://%s.%s/admin/dashboard', $protocol, $company->slug, $baseDomain);
+            }
         }
 
         return redirect($redirectTo)

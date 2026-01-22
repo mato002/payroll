@@ -94,5 +94,15 @@ class PayrollRun extends Model
     {
         return $this->hasMany(Payslip::class);
     }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }
 

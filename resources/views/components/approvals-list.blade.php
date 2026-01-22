@@ -19,32 +19,40 @@
         </span>
     </div>
 
-    <div class="divide-y divide-gray-100 dark:divide-gray-800">
-        <div class="px-4 py-3 text-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="font-medium text-gray-900 dark:text-gray-100">
-                        {{ __('Payroll runs') }}
-                    </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                        {{ trans_choice(':count run awaiting approval|:count runs awaiting approval', $payrollCount, ['count' => $payrollCount]) }}
-                    </p>
+    @if($total > 0)
+        <div class="divide-y divide-gray-100 dark:divide-gray-800">
+            <div class="px-4 py-3 text-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-gray-900 dark:text-gray-100">
+                            {{ __('Payroll runs') }}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            {{ trans_choice(':count run awaiting approval|:count runs awaiting approval', $payrollCount, ['count' => $payrollCount]) }}
+                        </p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="px-4 py-3 text-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="font-medium text-gray-900 dark:text-gray-100">
-                        {{ __('Payslips') }}
-                    </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                        {{ trans_choice(':count payslip pending release|:count payslips pending release', $payslipCount, ['count' => $payslipCount]) }}
-                    </p>
+            <div class="px-4 py-3 text-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-gray-900 dark:text-gray-100">
+                            {{ __('Payslips') }}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            {{ trans_choice(':count payslip pending release|:count payslips pending release', $payslipCount, ['count' => $payslipCount]) }}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    @else
+        <div class="px-4 py-6">
+            <x-empty-states.no-notifications 
+                description="No pending approvals. All payroll runs and payslips are up to date."
+            />
+        </div>
+    @endif
 </div>
 

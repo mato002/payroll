@@ -52,10 +52,16 @@ class SetCurrentCompany
 
     /**
      * Detect company using configured detection methods.
-     * Prioritizes session for authenticated users when no subdomain is present.
+     * Prioritizes route parameter, then session for authenticated users when no subdomain is present.
      */
     protected function detectCompany(Request $request): ?Company
     {
+        // First, check if company is in the route parameter (path-based routing)
+        $routeCompany = $this->detectFromRoute($request);
+        if ($routeCompany) {
+            return $routeCompany;
+        }
+
         // If user is authenticated and no subdomain, prioritize session
         if (Auth::check() && ! $this->detectFromSubdomain($request)) {
             $sessionKey = config('tenancy.session_key', 'current_company_id');
@@ -90,6 +96,44 @@ class SetCurrentCompany
         }
 
         return null;
+    }
+
+    /**
+     * Extract company from route parameter (for path-based routing).
+     */
+    protected function detectFromRoute(Request $request): ?Company
+    {
+        $route = $request->route();
+        if (!$route) {
+            return null;
+        }
+
+        // Check if 'company' parameter exists in the route
+        // Try to get it from route parameters
+        $companySlug = $route->parameter('company');
+        
+        // If not found in parameters, try to get from the route URI segments
+        if (!$companySlug) {
+            $segments = $request->segments();
+            // For path like /companies/{company}/admin/dashboard
+            // segments would be: ['companies', 'acme-corp', 'admin', 'dashboard']
+            $companiesIndex = array_search('companies', $segments);
+            if ($companiesIndex !== false && isset($segments[$companiesIndex + 1])) {
+                $companySlug = $segments[$companiesIndex + 1];
+            }
+        }
+        
+        if (!$companySlug) {
+            return null;
+        }
+
+        // If it's already a Company model instance, return it
+        if ($companySlug instanceof Company) {
+            return $companySlug;
+        }
+
+        // Otherwise, resolve by slug
+        return $this->resolveCompany($companySlug);
     }
 
     /**

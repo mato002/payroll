@@ -2,299 +2,416 @@
     /** @var \Illuminate\Support\Collection|\App\Models\SubscriptionPlan[] $plans */
 @endphp
 
-@extends('layouts.marketing')
-
-@section('title', 'Sign up your company – ' . config('app.name', 'Payroll SaaS'))
-
-@section('content')
-    <section class="bg-gray-50">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20">
-            <div class="max-w-3xl mx-auto bg-white shadow-sm border rounded-2xl p-6 sm:p-8">
-                <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
-                    <div>
-                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Sign up your company</h1>
-                        <p class="mt-1 text-sm text-gray-600">
-                            Create your company account and start a free trial. No credit card required.
-                        </p>
-                    </div>
-                    <p class="text-xs text-gray-500">
-                        Already have an account?
-                        @if (Route::has('login'))
-                            <a href="{{ route('login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">Log in</a>
-                        @endif
-                    </p>
-                </div>
-
-                @if ($errors->any())
-                    <div class="mt-4 mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700" role="alert">
-                        <p class="font-medium">Please fix the errors below and try again.</p>
-                    </div>
-                @endif
-
-                <form method="POST" action="{{ route('company.signup.store') }}" enctype="multipart/form-data" class="mt-4 space-y-8" novalidate>
-                    @csrf
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {{-- Company info --}}
-                <div>
-                    <h2 class="text-sm font-semibold text-gray-900 mb-3">Company details</h2>
-
-                    <div class="mb-3">
-                        <label for="company_name" class="block text-xs font-medium text-gray-700">Company name *</label>
-                        <input
-                            id="company_name"
-                            type="text"
-                            name="company_name"
-                            value="{{ old('company_name') }}"
-                            required
-                            class="mt-1 block w-full rounded-md border-gray-300 @error('company_name') border-red-500 @enderror px-3 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                            @error('company_name') aria-invalid="true" aria-describedby="company_name-error" @enderror
-                        >
-                        @error('company_name')
-                            <p id="company_name-error" class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="legal_name" class="block text-xs font-medium text-gray-700">Legal name</label>
-                        <input
-                            id="legal_name"
-                            type="text"
-                            name="legal_name"
-                            value="{{ old('legal_name') }}"
-                            class="mt-1 block w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="registration_number" class="block text-xs font-medium text-gray-700">Registration number</label>
-                        <input
-                            id="registration_number"
-                            type="text"
-                            name="registration_number"
-                            value="{{ old('registration_number') }}"
-                            class="mt-1 block w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="tax_id" class="block text-xs font-medium text-gray-700">Tax ID</label>
-                        <input
-                            id="tax_id"
-                            type="text"
-                            name="tax_id"
-                            value="{{ old('tax_id') }}"
-                            class="mt-1 block w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="billing_email" class="block text-xs font-medium text-gray-700">Billing email *</label>
-                        <input
-                            id="billing_email"
-                            type="email"
-                            name="billing_email"
-                            value="{{ old('billing_email') }}"
-                            required
-                            class="mt-1 block w-full rounded-md border-gray-300 @error('billing_email') border-red-500 @enderror px-3 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                            @error('billing_email') aria-invalid="true" aria-describedby="billing_email-error" @enderror
-                        >
-                        @error('billing_email')
-                            <p id="billing_email-error" class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="logo" class="block text-xs font-medium text-gray-700">Logo</label>
-                        <input
-                            id="logo"
-                            type="file"
-                            name="logo"
-                            accept="image/*"
-                            class="mt-1 block w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                        <p class="mt-1 text-[11px] text-gray-500">PNG or JPG, up to 2MB.</p>
-                    </div>
-                </div>
-
-                {{-- Admin user --}}
-                <div x-data="{ showPassword: false }">
-                    <h2 class="text-sm font-semibold text-gray-900 mb-3">Admin user</h2>
-
-                    <div class="mb-3">
-                        <label for="admin_name" class="block text-xs font-medium text-gray-700">Full name *</label>
-                        <input
-                            id="admin_name"
-                            type="text"
-                            name="admin_name"
-                            value="{{ old('admin_name') }}"
-                            required
-                            class="mt-1 block w-full rounded-md border-gray-300 @error('admin_name') border-red-500 @enderror px-3 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                            @error('admin_name') aria-invalid="true" aria-describedby="admin_name-error" @enderror
-                        >
-                        @error('admin_name')
-                            <p id="admin_name-error" class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="admin_email" class="block text-xs font-medium text-gray-700">Email address *</label>
-                        <input
-                            id="admin_email"
-                            type="email"
-                            name="admin_email"
-                            value="{{ old('admin_email') }}"
-                            required
-                            class="mt-1 block w-full rounded-md border-gray-300 @error('admin_email') border-red-500 @enderror px-3 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                            @error('admin_email') aria-invalid="true" aria-describedby="admin_email-error" @enderror
-                        >
-                        @error('admin_email')
-                            <p id="admin_email-error" class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="admin_password" class="block text-xs font-medium text-gray-700">Password *</label>
-                        <div class="mt-1 relative">
-                            <input
-                                :type="showPassword ? 'text' : 'password'"
-                                id="admin_password"
-                                name="admin_password"
-                                required
-                                class="block w-full rounded-md border-gray-300 @error('admin_password') border-red-500 @enderror px-3 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500 pr-10"
-                                @error('admin_password') aria-invalid="true" aria-describedby="admin_password-error" @enderror
-                            >
-                            <button
-                                type="button"
-                                class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600"
-                                @click="showPassword = !showPassword"
-                                :aria-label="showPassword ? 'Hide password' : 'Show password'"
-                            >
-                                <svg x-show="!showPassword" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                     viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                                <svg x-show="showPassword" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                     viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                          d="M3 3l18 18M10.477 10.489A3 3 0 0013.5 13.5m-1.759 3.267A8.258 8.258 0 0112 16.5c-4.477 0-8.268-2.943-9.542-7a13.134 13.134 0 013.303-5.197M9.88 4.24A8.254 8.254 0 0112 4.5c4.478 0 8.268 2.943 9.542 7-.225.717-.516 1.4-.867 2.043"/>
-                                </svg>
-                            </button>
-                        </div>
-                        @error('admin_password')
-                            <p id="admin_password-error" class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                        @enderror
-                        <p class="mt-1 text-[11px] text-gray-500">Use at least 8 characters with a mix of letters and numbers.</p>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="admin_password_confirmation" class="block text-xs font-medium text-gray-700">Confirm password *</label>
-                        <input
-                            id="admin_password_confirmation"
-                            type="password"
-                            name="admin_password_confirmation"
-                            required
-                            class="mt-1 block w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {{-- Company profile --}}
-                <div>
-                    <h2 class="font-medium mb-3">Company profile</h2>
-
-                    <label class="block mb-3 text-sm">
-                        <span class="block mb-1">Country (ISO code, e.g. KE, US)</span>
-                        <input type="text" name="country" value="{{ old('country') }}" class="w-full border rounded px-3 py-2">
-                    </label>
-
-                    <label class="block mb-3 text-sm">
-                        <span class="block mb-1">Timezone</span>
-                        <input type="text" name="timezone" value="{{ old('timezone', config('app.timezone')) }}" class="w-full border rounded px-3 py-2">
-                    </label>
-
-                    <label class="block mb-3 text-sm">
-                        <span class="block mb-1">Currency (e.g. KES, USD)</span>
-                        <input type="text" name="currency" value="{{ old('currency', 'USD') }}" required class="w-full border rounded px-3 py-2">
-                    </label>
-
-                    <label class="block mb-3 text-sm">
-                        <span class="block mb-1">Address line 1</span>
-                        <input type="text" name="address_line1" value="{{ old('address_line1') }}" class="w-full border rounded px-3 py-2">
-                    </label>
-
-                    <label class="block mb-3 text-sm">
-                        <span class="block mb-1">Address line 2</span>
-                        <input type="text" name="address_line2" value="{{ old('address_line2') }}" class="w-full border rounded px-3 py-2">
-                    </label>
-
-                    <div class="grid grid-cols-3 gap-2">
-                        <label class="block mb-3 text-sm col-span-1">
-                            <span class="block mb-1">City</span>
-                            <input type="text" name="city" value="{{ old('city') }}" class="w-full border rounded px-3 py-2">
-                        </label>
-                        <label class="block mb-3 text-sm col-span-1">
-                            <span class="block mb-1">State</span>
-                            <input type="text" name="state" value="{{ old('state') }}" class="w-full border rounded px-3 py-2">
-                        </label>
-                        <label class="block mb-3 text-sm col-span-1">
-                            <span class="block mb-1">Postal code</span>
-                            <input type="text" name="postal_code" value="{{ old('postal_code') }}" class="w-full border rounded px-3 py-2">
-                        </label>
-                    </div>
-                </div>
-
-                {{-- Plan selection --}}
-                <div>
-                    <h2 class="font-medium mb-3">Choose your plan</h2>
-
-                    @forelse ($plans as $plan)
-                        <label class="block mb-3 border rounded px-3 py-2 cursor-pointer">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <input
-                                        type="radio"
-                                        name="plan_code"
-                                        value="{{ $plan->code }}"
-                                        @checked(old('plan_code') === $plan->code || $loop->first && ! old('plan_code'))
-                                        class="mr-2"
-                                    >
-                                    <span class="font-medium">{{ $plan->name }}</span>
-                                    <span class="text-xs text-gray-500 ml-1">({{ $plan->billing_model }})</span>
-                                </div>
-                                <div class="text-sm text-gray-700">
-                                    {{ $plan->currency }} {{ number_format($plan->base_price, 2) }}
-                                    @if ($plan->billing_model === 'per_employee' && $plan->price_per_employee)
-                                        <span class="text-xs text-gray-500">
-                                            + {{ $plan->currency }} {{ number_format($plan->price_per_employee, 2) }}/employee
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="mt-1 text-xs text-gray-500">
-                                Trial: {{ $plan->trial_days }} days
-                            </div>
-                        </label>
-                    @empty
-                        <p class="text-sm text-gray-600">
-                            No plans are configured yet. Please contact support.
-                        </p>
-                    @endforelse
-                </div>
-            </div>
-
-            <div class="flex justify-end">
-                <button type="submit" class="px-6 py-2 bg-black text-white rounded hover:bg-gray-900 text-sm">
-                    Start free trial
-                </button>
-            </div>
-        </form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up your company – {{ config('app.name', 'MatechPay') }}</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="antialiased bg-gradient-to-br from-gray-50 via-indigo-50/30 to-white min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <!-- Background decoration -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
     </div>
+
+    <div class="relative max-w-5xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <a href="{{ route('landing') }}" class="inline-flex items-center space-x-3 mb-6">
+                <span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white font-bold text-lg shadow-lg shadow-indigo-500/25">
+                    MP
+                </span>
+                <span class="text-2xl font-bold tracking-tight text-gray-900">{{ config('app.name', 'MatechPay') }}</span>
+            </a>
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Sign up your company</h1>
+            <p class="mt-2 text-gray-600">
+                Create your company account and start a free trial. No credit card required.
+            </p>
+            <p class="mt-4 text-sm text-gray-500">
+                Already have an account?
+                @if (Route::has('login'))
+                    <a href="{{ route('login') }}" class="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors">Log in</a>
+                @endif
+            </p>
+        </div>
+
+        <!-- Signup form card -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 p-8 sm:p-10">
+            @if ($errors->any())
+                <div class="mb-8 rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-700" role="alert">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <div>
+                            <p class="font-semibold mb-1">Please fix the errors below and try again.</p>
+                            <ul class="list-disc list-inside space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('company.signup.store') }}" enctype="multipart/form-data" class="space-y-8" novalidate>
+                @csrf
+
+                <!-- Company Details & Admin User -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Company Details -->
+                    <div class="space-y-6">
+                        <div class="pb-4 border-b border-gray-200">
+                            <h2 class="text-lg font-bold text-gray-900 flex items-center">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 mr-3 text-sm font-bold">1</span>
+                                Company details
+                            </h2>
+                        </div>
+
+                        <div>
+                            <label for="company_name" class="block text-sm font-semibold text-gray-700 mb-2">Company name <span class="text-red-500">*</span></label>
+                            <input
+                                id="company_name"
+                                type="text"
+                                name="company_name"
+                                value="{{ old('company_name') }}"
+                                required
+                                placeholder="Acme Corporation"
+                                class="block w-full rounded-xl border @error('company_name') border-red-300 bg-red-50 @else border-gray-300 bg-white @enderror px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                @error('company_name') aria-invalid="true" aria-describedby="company_name-error" @enderror
+                            >
+                            @error('company_name')
+                                <p id="company_name-error" class="mt-2 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="legal_name" class="block text-sm font-semibold text-gray-700 mb-2">Legal name</label>
+                            <input
+                                id="legal_name"
+                                type="text"
+                                name="legal_name"
+                                value="{{ old('legal_name') }}"
+                                placeholder="Acme Corporation Ltd."
+                                class="block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                            >
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="registration_number" class="block text-sm font-semibold text-gray-700 mb-2">Registration number</label>
+                                <input
+                                    id="registration_number"
+                                    type="text"
+                                    name="registration_number"
+                                    value="{{ old('registration_number') }}"
+                                    placeholder="REG123456"
+                                    class="block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                >
+                            </div>
+                            <div>
+                                <label for="tax_id" class="block text-sm font-semibold text-gray-700 mb-2">Tax ID</label>
+                                <input
+                                    id="tax_id"
+                                    type="text"
+                                    name="tax_id"
+                                    value="{{ old('tax_id') }}"
+                                    placeholder="TAX789012"
+                                    class="block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                >
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="billing_email" class="block text-sm font-semibold text-gray-700 mb-2">Billing email <span class="text-red-500">*</span></label>
+                            <input
+                                id="billing_email"
+                                type="email"
+                                name="billing_email"
+                                value="{{ old('billing_email') }}"
+                                required
+                                placeholder="billing@company.com"
+                                class="block w-full rounded-xl border @error('billing_email') border-red-300 bg-red-50 @else border-gray-300 bg-white @enderror px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                @error('billing_email') aria-invalid="true" aria-describedby="billing_email-error" @enderror
+                            >
+                            @error('billing_email')
+                                <p id="billing_email-error" class="mt-2 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="logo" class="block text-sm font-semibold text-gray-700 mb-2">Company logo</label>
+                            <input
+                                id="logo"
+                                type="file"
+                                name="logo"
+                                accept="image/*"
+                                class="block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                            >
+                            <p class="mt-2 text-xs text-gray-500">PNG or JPG, up to 2MB.</p>
+                        </div>
+                    </div>
+
+                    <!-- Admin User -->
+                    <div class="space-y-6" x-data="{ showPassword: false, showPasswordConfirmation: false }">
+                        <div class="pb-4 border-b border-gray-200">
+                            <h2 class="text-lg font-bold text-gray-900 flex items-center">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-purple-100 text-purple-600 mr-3 text-sm font-bold">2</span>
+                                Admin user
+                            </h2>
+                        </div>
+
+                        <div>
+                            <label for="admin_name" class="block text-sm font-semibold text-gray-700 mb-2">Full name <span class="text-red-500">*</span></label>
+                            <input
+                                id="admin_name"
+                                type="text"
+                                name="admin_name"
+                                value="{{ old('admin_name') }}"
+                                required
+                                placeholder="John Doe"
+                                class="block w-full rounded-xl border @error('admin_name') border-red-300 bg-red-50 @else border-gray-300 bg-white @enderror px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                @error('admin_name') aria-invalid="true" aria-describedby="admin_name-error" @enderror
+                            >
+                            @error('admin_name')
+                                <p id="admin_name-error" class="mt-2 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="admin_email" class="block text-sm font-semibold text-gray-700 mb-2">Email address <span class="text-red-500">*</span></label>
+                            <input
+                                id="admin_email"
+                                type="email"
+                                name="admin_email"
+                                value="{{ old('admin_email') }}"
+                                required
+                                placeholder="admin@company.com"
+                                class="block w-full rounded-xl border @error('admin_email') border-red-300 bg-red-50 @else border-gray-300 bg-white @enderror px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                @error('admin_email') aria-invalid="true" aria-describedby="admin_email-error" @enderror
+                            >
+                            @error('admin_email')
+                                <p id="admin_email-error" class="mt-2 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="admin_password" class="block text-sm font-semibold text-gray-700 mb-2">Password <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <input
+                                    :type="showPassword ? 'text' : 'password'"
+                                    id="admin_password"
+                                    name="admin_password"
+                                    required
+                                    placeholder="Create a strong password"
+                                    class="block w-full rounded-xl border @error('admin_password') border-red-300 bg-red-50 @else border-gray-300 bg-white @enderror px-4 py-3 pr-10 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                    @error('admin_password') aria-invalid="true" aria-describedby="admin_password-error" @enderror
+                                >
+                                <button
+                                    type="button"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                                    @click="showPassword = !showPassword"
+                                    :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                                >
+                                    <svg x-show="!showPassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    <svg x-show="showPassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18M10.477 10.489A3 3 0 0013.5 13.5m-1.759 3.267A8.258 8.258 0 0112 16.5c-4.477 0-8.268-2.943-9.542-7a13.134 13.134 0 013.303-5.197M9.88 4.24A8.254 8.254 0 0112 4.5c4.478 0 8.268 2.943 9.542 7-.225.717-.516 1.4-.867 2.043"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            @error('admin_password')
+                                <p id="admin_password-error" class="mt-2 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                            <p class="mt-2 text-xs text-gray-500">Use at least 8 characters with a mix of letters and numbers.</p>
+                        </div>
+
+                        <div>
+                            <label for="admin_password_confirmation" class="block text-sm font-semibold text-gray-700 mb-2">Confirm password <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <input
+                                    :type="showPasswordConfirmation ? 'text' : 'password'"
+                                    id="admin_password_confirmation"
+                                    name="admin_password_confirmation"
+                                    required
+                                    placeholder="Confirm your password"
+                                    class="block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-10 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                >
+                                <button
+                                    type="button"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                                    @click="showPasswordConfirmation = !showPasswordConfirmation"
+                                    :aria-label="showPasswordConfirmation ? 'Hide password' : 'Show password'"
+                                >
+                                    <svg x-show="!showPasswordConfirmation" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    <svg x-show="showPasswordConfirmation" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18M10.477 10.489A3 3 0 0013.5 13.5m-1.759 3.267A8.258 8.258 0 0112 16.5c-4.477 0-8.268-2.943-9.542-7a13.134 13.134 0 013.303-5.197M9.88 4.24A8.254 8.254 0 0112 4.5c4.478 0 8.268 2.943 9.542 7-.225.717-.516 1.4-.867 2.043"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Profile & Plan Selection -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-8 border-t border-gray-200">
+                    <!-- Company Profile -->
+                    <div class="space-y-6">
+                        <div class="pb-4 border-b border-gray-200">
+                            <h2 class="text-lg font-bold text-gray-900 flex items-center">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-pink-100 text-pink-600 mr-3 text-sm font-bold">3</span>
+                                Company profile
+                            </h2>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label for="country" class="block text-sm font-semibold text-gray-700 mb-2">Country</label>
+                                <input type="text" id="country" name="country" value="{{ old('country') }}" placeholder="KE" class="block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                            </div>
+                            <div>
+                                <label for="timezone" class="block text-sm font-semibold text-gray-700 mb-2">Timezone</label>
+                                <input type="text" id="timezone" name="timezone" value="{{ old('timezone', config('app.timezone')) }}" placeholder="UTC" class="block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                            </div>
+                            <div>
+                                <label for="currency" class="block text-sm font-semibold text-gray-700 mb-2">Currency <span class="text-red-500">*</span></label>
+                                <input type="text" id="currency" name="currency" value="{{ old('currency', 'USD') }}" required placeholder="USD" class="block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="address_line1" class="block text-sm font-semibold text-gray-700 mb-2">Address line 1</label>
+                            <input type="text" id="address_line1" name="address_line1" value="{{ old('address_line1') }}" placeholder="123 Main Street" class="block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                        </div>
+
+                        <div>
+                            <label for="address_line2" class="block text-sm font-semibold text-gray-700 mb-2">Address line 2</label>
+                            <input type="text" id="address_line2" name="address_line2" value="{{ old('address_line2') }}" placeholder="Suite 100" class="block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label for="city" class="block text-sm font-semibold text-gray-700 mb-2">City</label>
+                                <input type="text" id="city" name="city" value="{{ old('city') }}" placeholder="Nairobi" class="block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                            </div>
+                            <div>
+                                <label for="state" class="block text-sm font-semibold text-gray-700 mb-2">State</label>
+                                <input type="text" id="state" name="state" value="{{ old('state') }}" placeholder="State" class="block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                            </div>
+                            <div>
+                                <label for="postal_code" class="block text-sm font-semibold text-gray-700 mb-2">Postal code</label>
+                                <input type="text" id="postal_code" name="postal_code" value="{{ old('postal_code') }}" placeholder="00100" class="block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Plan Selection -->
+                    <div class="space-y-6">
+                        <div class="pb-4 border-b border-gray-200">
+                            <h2 class="text-lg font-bold text-gray-900 flex items-center">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 mr-3 text-sm font-bold">4</span>
+                                Choose your plan
+                            </h2>
+                        </div>
+
+                        <div class="space-y-3">
+                            @forelse ($plans as $plan)
+                                @php
+                                    $isSelected = old('plan_code') === $plan->code || ($loop->first && ! old('plan_code'));
+                                @endphp
+                                <label class="block p-4 rounded-xl border-2 {{ $isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/50' }} cursor-pointer transition-all duration-200">
+                                    <div class="flex items-start">
+                                        <input
+                                            type="radio"
+                                            name="plan_code"
+                                            value="{{ $plan->code }}"
+                                            @checked(old('plan_code') === $plan->code || $loop->first && ! old('plan_code'))
+                                            class="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                                        >
+                                        <div class="ml-3 flex-1">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <span class="font-bold text-gray-900">{{ $plan->name }}</span>
+                                                    <span class="ml-2 text-xs text-gray-500">({{ $plan->billing_model }})</span>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="text-sm font-bold text-gray-900">
+                                                        {{ $plan->currency }} {{ number_format($plan->base_price, 2) }}
+                                                    </div>
+                                                    @if ($plan->billing_model === 'per_employee' && $plan->price_per_employee)
+                                                        <div class="text-xs text-gray-500">
+                                                            + {{ $plan->currency }} {{ number_format($plan->price_per_employee, 2) }}/employee
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 text-xs text-gray-500">
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium">
+                                                    {{ $plan->trial_days }}-day free trial
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </label>
+                            @empty
+                                <div class="p-4 rounded-xl border border-gray-200 bg-gray-50">
+                                    <p class="text-sm text-gray-600">
+                                        No plans are configured yet. Please contact support.
+                                    </p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit button -->
+                <div class="pt-8 border-t border-gray-200">
+                    <button type="submit" class="w-full sm:w-auto sm:float-right inline-flex items-center justify-center px-8 py-4 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:-translate-y-0.5">
+                        Start free trial
+                        <svg class="ml-2 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Back to home -->
+        <div class="mt-6 text-center">
+            <a href="{{ route('landing') }}" class="text-sm text-gray-600 hover:text-indigo-600 transition-colors inline-flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back to home
+            </a>
+        </div>
+    </div>
+
+    <style>
+        @keyframes blob {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+        .animate-blob {
+            animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+            animation-delay: 4s;
+        }
+    </style>
 </body>
 </html>
-

@@ -89,7 +89,7 @@ class PayrollRunWizardController extends Controller
         }
 
         if ($step === 4) {
-            // Final confirmation: create and calculate the run
+            // Final confirmation: create draft run with calculations, then submit for approval
             $company = $this->currentCompany->get();
             if (! $company) {
                 return redirect()->back()->withErrors(['wizard' => 'No current company selected.']);
@@ -99,7 +99,8 @@ class PayrollRunWizardController extends Controller
             $periodEnd   = Carbon::parse($wizard['period_end_date']);
             $payDate     = Carbon::parse($wizard['pay_date']);
 
-            $run = $this->payrollRunService->createAndCalculateMonthlyRun(
+            // Create draft run with calculations
+            $run = $this->payrollRunService->createDraftRunWithCalculations(
                 $company,
                 $periodStart,
                 $periodEnd,
@@ -108,11 +109,14 @@ class PayrollRunWizardController extends Controller
                 $wizard['description'] ?? null
             );
 
+            // Submit for approval (draft → processing)
+            $this->payrollRunService->submitForReview($run);
+
             $request->session()->forget('payroll_run_wizard');
 
             return redirect()
                 ->route('company.admin.dashboard')
-                ->with('status', 'Payroll run "' . $run->name . '" created and calculated.');
+                ->with('status', 'Payroll run "' . $run->name . '" created, calculated, and submitted for approval.');
         }
 
         return redirect()->route('payroll.runs.wizard.create', ['step' => 1]);

@@ -17,6 +17,9 @@ Route::view('/', 'landing')->name('landing');
 Route::view('/pricing', 'pricing')->name('pricing');
 Route::view('/features', 'features')->name('features');
 Route::view('/contact', 'contact')->name('contact');
+Route::view('/security', 'security')->name('security');
+Route::view('/privacy', 'privacy')->name('privacy');
+Route::view('/terms', 'terms')->name('terms');
 
 Route::post('/contact', [\App\Http\Controllers\ContactController::class, 'submit'])
     ->name('contact.submit');
@@ -60,9 +63,34 @@ Route::post('/signup', [CompanyOnboardingController::class, 'store'])
 
 Route::middleware(['web', 'auth', 'role:super_admin'])
     ->prefix('admin')
+    ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])
-            ->name('admin.dashboard');
+            ->name('dashboard');
+        
+        // Company management
+        Route::prefix('companies')
+            ->name('companies.')
+            ->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\CompanyController::class, 'index'])
+                    ->name('index');
+                Route::get('/create', [\App\Http\Controllers\Admin\CompanyController::class, 'create'])
+                    ->name('create');
+                Route::post('/', [\App\Http\Controllers\Admin\CompanyController::class, 'store'])
+                    ->name('store');
+            });
+        
+        // Subscription Plans
+        Route::get('/subscription-plans', [\App\Http\Controllers\Admin\SubscriptionPlanController::class, 'index'])
+            ->name('subscription-plans.index');
+        
+        // Users
+        Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])
+            ->name('users.index');
+        
+        // Settings
+        Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])
+            ->name('settings.index');
     });
 
 /*
@@ -90,6 +118,40 @@ Route::middleware(['web', 'auth'])
         
         Route::get('/list', [\App\Http\Controllers\CompanySwitchController::class, 'list'])
             ->name('list'); // JSON endpoint for AJAX
+        
+        // Path-based company routes (alternative to subdomain)
+        Route::middleware([SetCurrentCompany::class, 'subscribed'])
+            ->prefix('{company}')
+            ->group(function () {
+                Route::middleware(['role:company_admin'])
+                    ->prefix('admin')
+                    ->group(function () {
+                        Route::get('/dashboard', \App\Http\Controllers\Company\AdminDashboardController::class)
+                            ->name('company.admin.dashboard.path');
+
+                        // Payroll runs (path-based)
+                        Route::prefix('payroll-runs')
+                            ->name('payroll.runs.path.')
+                            ->group(function () {
+                                Route::get('/', [\App\Http\Controllers\Payroll\PayrollRunController::class, 'index'])
+                                    ->name('index');
+                                Route::get('/wizard', [PayrollRunWizardController::class, 'create'])
+                                    ->name('wizard.create');
+                                Route::post('/wizard', [PayrollRunWizardController::class, 'storeStep'])
+                                    ->name('wizard.store');
+                                Route::get('/{run}/review', [\App\Http\Controllers\Payroll\PayrollRunWorkflowController::class, 'show'])
+                                    ->name('review');
+                                Route::post('/{run}/approve', [\App\Http\Controllers\Payroll\PayrollRunWorkflowController::class, 'approve'])
+                                    ->name('approve');
+                                Route::post('/{run}/reject', [\App\Http\Controllers\Payroll\PayrollRunWorkflowController::class, 'reject'])
+                                    ->name('reject');
+                                Route::post('/{run}/submit-review', [\App\Http\Controllers\Payroll\PayrollRunWorkflowController::class, 'submitForReview'])
+                                    ->name('submit_review');
+                                Route::post('/{run}/close', [\App\Http\Controllers\Payroll\PayrollRunWorkflowController::class, 'close'])
+                                    ->name('close');
+                            });
+                    });
+            });
     });
 
 /*
@@ -123,11 +185,17 @@ Route::domain('{company}.' . config('tenancy.base_domain'))
                 Route::get('/dashboard', \App\Http\Controllers\Company\AdminDashboardController::class)
                     ->name('company.admin.dashboard');
 
-                // Payroll run wizard
-                Route::get('/payroll-runs/wizard', [PayrollRunWizardController::class, 'create'])
-                    ->name('payroll.runs.wizard.create');
-                Route::post('/payroll-runs/wizard', [PayrollRunWizardController::class, 'storeStep'])
-                    ->name('payroll.runs.wizard.store');
+                // Payroll runs
+                Route::prefix('payroll-runs')
+                    ->name('payroll.runs.')
+                    ->group(function () {
+                        Route::get('/', [\App\Http\Controllers\Payroll\PayrollRunController::class, 'index'])
+                            ->name('index');
+                        Route::get('/wizard', [PayrollRunWizardController::class, 'create'])
+                            ->name('wizard.create');
+                        Route::post('/wizard', [PayrollRunWizardController::class, 'storeStep'])
+                            ->name('wizard.store');
+                    });
 
                 // Compliance Reports
                 Route::prefix('reports')
@@ -157,10 +225,14 @@ Route::domain('{company}.' . config('tenancy.base_domain'))
                     });
 
                 // Payroll workflow routes
+                Route::get('/payroll-runs/{run}/review', [PayrollRunWorkflowController::class, 'show'])
+                    ->name('payroll.runs.review');
                 Route::post('/payroll-runs/{run}/submit-review', [PayrollRunWorkflowController::class, 'submitForReview'])
                     ->name('payroll.runs.submit_review');
                 Route::post('/payroll-runs/{run}/approve', [PayrollRunWorkflowController::class, 'approve'])
                     ->name('payroll.runs.approve');
+                Route::post('/payroll-runs/{run}/reject', [PayrollRunWorkflowController::class, 'reject'])
+                    ->name('payroll.runs.reject');
                 Route::post('/payroll-runs/{run}/close', [PayrollRunWorkflowController::class, 'close'])
                     ->name('payroll.runs.close');
 
@@ -197,16 +269,127 @@ Route::domain('{company}.' . config('tenancy.base_domain'))
                         Route::get('/export', [\App\Http\Controllers\Employee\EmployeeExportController::class, 'export'])
                             ->name('export');
                     });
+
+                // Export status check (for async exports)
+                Route::get('/exports/{jobId}/status', [\App\Http\Controllers\ExportStatusController::class, 'status'])
+                    ->name('exports.status');
+
+                // Salary Structure management routes
+                Route::prefix('salary-structures')
+                    ->name('salary-structures.')
+                    ->group(function () {
+                        Route::get('/', [\App\Http\Controllers\SalaryStructureController::class, 'index'])
+                            ->name('index');
+                        Route::get('/create', [\App\Http\Controllers\SalaryStructureController::class, 'create'])
+                            ->name('create');
+                        Route::post('/', [\App\Http\Controllers\SalaryStructureController::class, 'store'])
+                            ->name('store');
+                        Route::get('/{salaryStructure}', [\App\Http\Controllers\SalaryStructureController::class, 'show'])
+                            ->name('show');
+                        Route::get('/{salaryStructure}/edit', [\App\Http\Controllers\SalaryStructureController::class, 'edit'])
+                            ->name('edit');
+                        Route::put('/{salaryStructure}', [\App\Http\Controllers\SalaryStructureController::class, 'update'])
+                            ->name('update');
+                        Route::delete('/{salaryStructure}', [\App\Http\Controllers\SalaryStructureController::class, 'destroy'])
+                            ->name('destroy');
+                    });
+
+                // Subscription management routes
+                Route::prefix('subscriptions')
+                    ->name('subscriptions.')
+                    ->group(function () {
+                        Route::get('/', [\App\Http\Controllers\SubscriptionController::class, 'index'])
+                            ->name('index');
+                        Route::get('/change-plan/{plan}', [\App\Http\Controllers\SubscriptionController::class, 'showChangePlan'])
+                            ->name('change-plan.show');
+                        Route::post('/change-plan/{plan}', [\App\Http\Controllers\SubscriptionController::class, 'changePlan'])
+                            ->name('change-plan.store');
+                        Route::post('/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancel'])
+                            ->name('cancel');
+                        Route::prefix('invoices')
+                            ->name('invoices.')
+                            ->group(function () {
+                                Route::get('/{invoice}/download', [\App\Http\Controllers\SubscriptionController::class, 'downloadInvoice'])
+                                    ->name('download');
+                            });
+                    });
+
+                // Payslips management (admin view)
+                Route::prefix('payslips')
+                    ->name('payslips.')
+                    ->group(function () {
+                        Route::get('/', [\App\Http\Controllers\PayslipController::class, 'adminIndex'])
+                            ->name('index');
+                        Route::get('/{payslip}/download', [\App\Http\Controllers\PayslipController::class, 'download'])
+                            ->name('download');
+                    });
+
+                // Tax & Compliance
+                Route::get('/tax-compliance', [\App\Http\Controllers\Reports\TaxReportController::class, 'index'])
+                    ->name('tax-compliance.index');
+
+                // Users & Roles management
+                Route::prefix('users-roles')
+                    ->name('users-roles.')
+                    ->group(function () {
+                        Route::get('/', [\App\Http\Controllers\Company\UserRoleController::class, 'index'])
+                            ->name('index');
+                        Route::get('/create', [\App\Http\Controllers\Company\UserRoleController::class, 'create'])
+                            ->name('create');
+                        Route::post('/', [\App\Http\Controllers\Company\UserRoleController::class, 'store'])
+                            ->name('store');
+                        Route::get('/{user}/edit', [\App\Http\Controllers\Company\UserRoleController::class, 'edit'])
+                            ->name('edit');
+                        Route::put('/{user}', [\App\Http\Controllers\Company\UserRoleController::class, 'update'])
+                            ->name('update');
+                    });
+
+                // Company Settings
+                Route::prefix('settings')
+                    ->name('settings.')
+                    ->group(function () {
+                        Route::get('/', [\App\Http\Controllers\Company\SettingsController::class, 'index'])
+                            ->name('index');
+                        Route::put('/', [\App\Http\Controllers\Company\SettingsController::class, 'update'])
+                            ->name('update');
+                    });
             });
 
-        // Employee self-service area (payslips only)
+        // Employee self-service area
         Route::middleware(['role:employee'])
             ->prefix('employee')
+            ->name('employee.')
             ->group(function () {
+                // Dashboard
+                Route::get('/dashboard', [\App\Http\Controllers\Employee\EmployeeDashboardController::class, 'index'])
+                    ->name('dashboard');
+
+                // Payslips
                 Route::get('/payslips', [\App\Http\Controllers\PayslipController::class, 'index'])
-                    ->name('employee.payslips.index');
+                    ->name('payslips.index');
 
                 Route::get('/payslips/{payslip}/download', [\App\Http\Controllers\PayslipController::class, 'download'])
-                    ->name('employee.payslips.download');
+                    ->name('payslips.download');
+
+                // Profile
+                Route::get('/profile', [\App\Http\Controllers\Employee\EmployeeProfileController::class, 'show'])
+                    ->name('profile.show');
+
+                Route::put('/profile', [\App\Http\Controllers\Employee\EmployeeProfileController::class, 'update'])
+                    ->name('profile.update');
+
+                // Notifications
+                Route::get('/notifications', [\App\Http\Controllers\Employee\EmployeeNotificationsController::class, 'index'])
+                    ->name('notifications.index');
+
+                Route::post('/notifications/{id}/read', [\App\Http\Controllers\Employee\EmployeeNotificationsController::class, 'markAsRead'])
+                    ->name('notifications.read');
+
+                Route::post('/notifications/read-all', [\App\Http\Controllers\Employee\EmployeeNotificationsController::class, 'markAllAsRead'])
+                    ->name('notifications.read-all');
+
+                // Help / Support
+                Route::get('/help', [\App\Http\Controllers\Employee\EmployeeHelpController::class, 'index'])
+                    ->name('help.index');
             });
     });

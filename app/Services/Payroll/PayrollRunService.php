@@ -137,6 +137,94 @@ class PayrollRunService
     }
 
     /**
+     * Create a draft payroll run with calculations, ready for review.
+     * This is used by the wizard to create a run that will be submitted for approval.
+     */
+    public function createDraftRunWithCalculations(
+        Company $company,
+        Carbon $periodStart,
+        Carbon $periodEnd,
+        Carbon $payDate,
+        ?string $name = null,
+        ?string $description = null
+    ): PayrollRun {
+        $run = null;
+
+        try {
+            return DB::transaction(function () use (&$run, $company, $periodStart, $periodEnd, $payDate, $name, $description) {
+                // Create run in draft status
+                $run = PayrollRun::create([
+                    'company_id'        => $company->id,
+                    'name'              => $name ?? sprintf('Monthly payroll %s', $periodEnd->format('F Y')),
+                    'period_start_date' => $periodStart,
+                    'period_end_date'   => $periodEnd,
+                    'pay_date'          => $payDate,
+                    'status'            => 'draft', // Draft status - will be submitted for review
+                    'pay_frequency'     => 'monthly',
+                    'description'       => $description,
+                    'created_by'        => Auth::id(),
+                ]);
+
+                $totalGross = 0.0;
+                $totalNet   = 0.0;
+
+                /** @var \Illuminate\Support\Collection<int,Employee> $employees */
+                $employees = Employee::query()
+                    ->where('company_id', $company->id)
+                    ->where('employment_status', 'active')
+                    ->where('is_active', true)
+                    ->get();
+
+                // Calculate payroll for all employees
+                foreach ($employees as $employee) {
+                    $item = $this->calculator->calculateForEmployee($run, $employee);
+                    $totalGross += (float) $item->gross_amount;
+                    $totalNet   += (float) $item->net_amount;
+                }
+
+                // Update totals but keep status as draft
+                $run->update([
+                    'total_gross_amount' => $totalGross,
+                    'total_net_amount'   => $totalNet,
+                    // Status remains 'draft' - will be submitted for review separately
+                ]);
+
+                return $run->fresh('items.details');
+            });
+        } catch (MissingSalaryDataException|InvalidTaxConfigurationException $e) {
+            Log::channel('payroll')->warning('Payroll run failed due to configuration issue', [
+                'run_id'     => $run?->id,
+                'company_id' => $company->id,
+                'error'      => $e->getMessage(),
+            ]);
+
+            throw new PayrollRunException('Payroll run failed due to configuration errors.');
+        } catch (\Throwable $e) {
+            Log::channel('payroll')->error('Unexpected error during payroll run', [
+                'run_id'     => $run?->id,
+                'company_id' => $company->id,
+                'exception'  => $e,
+            ]);
+
+            throw new PayrollRunException('Unexpected payroll processing error.');
+        }
+    }
+
+    /**
+     * Submit a draft payroll run for review (draft → processing).
+     */
+    public function submitForReview(PayrollRun $run): PayrollRun
+    {
+        if (! $run->canSubmitForReview()) {
+            throw new \RuntimeException('Payroll run cannot be submitted for review from current state.');
+        }
+
+        $run->update(['status' => 'processing']);
+
+        return $run->fresh();
+    }
+
+    /**
      * Guard to prevent modifications when run is locked.
      */
     public function ensureNotLocked(PayrollRun $run): void

@@ -14,8 +14,9 @@
         </div>
     </div>
 
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-800">
+    <div class="overflow-x-auto -mx-4 sm:mx-0">
+        <div class="inline-block min-w-full align-middle px-4 sm:px-0">
+            <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-800">
             <thead class="bg-gray-50 dark:bg-gray-900/40">
             <tr>
                 <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
@@ -51,38 +52,69 @@
                             </span>
                         </div>
                     </td>
+                    @php
+                        $formatDate = function($date) {
+                            return function_exists('format_localized_date')
+                                ? format_localized_date($date)
+                                : \App\Support\Formatting::localizedDate($date);
+                        };
+                        $formatMoney = function($amount, $currency) {
+                            return function_exists('format_money')
+                                ? format_money($amount, $currency)
+                                : \App\Support\Formatting::money($amount, $currency);
+                        };
+                        $companyCurrency = currentCompany()?->currency ?? 'USD';
+                    @endphp
                     <td class="whitespace-nowrap px-4 py-2 align-top text-xs text-gray-700 dark:text-gray-200">
-                        {{ format_localized_date($run->period_start_date) }}
+                        {{ $formatDate($run->period_start_date) }}
                         &ndash;
-                        {{ format_localized_date($run->period_end_date) }}
+                        {{ $formatDate($run->period_end_date) }}
                     </td>
                     <td class="whitespace-nowrap px-4 py-2 align-top text-xs text-gray-700 dark:text-gray-200">
-                        {{ format_localized_date($run->pay_date) }}
+                        {{ $formatDate($run->pay_date) }}
                     </td>
                     <td class="whitespace-nowrap px-4 py-2 align-top text-right text-xs text-gray-700 dark:text-gray-200">
-                        {{ format_money($run->total_net_amount ?? 0, currentCompany()?->currency ?? 'USD') }}
+                        {{ $formatMoney($run->total_net_amount ?? 0, $companyCurrency) }}
                     </td>
                     <td class="whitespace-nowrap px-4 py-2 align-top text-xs">
                         <x-status-pill :status="$run->status" />
                     </td>
                     <td class="whitespace-nowrap px-4 py-2 align-top text-right text-xs">
                         <div class="inline-flex items-center gap-1">
-                            <a href="#"
-                               class="inline-flex items-center rounded-md border border-gray-200 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800">
-                                {{ __('View') }}
-                            </a>
+                            @php
+                                $currentCompanySlug = request()->route('company') ?? currentCompany()?->slug;
+                                $reviewRoute = null;
+                                if ($currentCompanySlug) {
+                                    if (Route::has('payroll.runs.path.review')) {
+                                        $reviewRoute = route('payroll.runs.path.review', ['company' => $currentCompanySlug, 'run' => $run->id]);
+                                    } elseif (Route::has('payroll.runs.review')) {
+                                        $reviewRoute = route('payroll.runs.review', ['company' => $currentCompanySlug, 'run' => $run->id]);
+                                    }
+                                }
+                            @endphp
+                            @if($reviewRoute)
+                                <a href="{{ $reviewRoute }}"
+                                   class="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800 min-h-[36px] min-w-[60px]">
+                                    {{ __('View') }}
+                                </a>
+                            @else
+                                <span class="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-500 min-h-[36px] min-w-[60px]">
+                                    {{ __('View') }}
+                                </span>
+                            @endif
                         </div>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="px-4 py-4 text-center text-xs text-gray-500 dark:text-gray-400">
-                        {{ __('No payroll runs found.') }}
+                    <td colspan="6" class="px-4 py-4">
+                        <x-empty-states.no-payroll-runs />
                     </td>
                 </tr>
             @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 

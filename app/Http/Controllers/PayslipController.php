@@ -32,6 +32,21 @@ class PayslipController extends Controller
     }
 
     /**
+     * Admin: list all payslips for the company.
+     */
+    public function adminIndex(Request $request)
+    {
+        $company = currentCompany();
+        
+        $payslips = Payslip::query()
+            ->where('company_id', $company->id)
+            ->orderByDesc('issue_date')
+            ->paginate(20);
+
+        return view('payslips.admin.index', compact('payslips'));
+    }
+
+    /**
      * Download a single payslip PDF securely from private storage.
      */
     public function download(Request $request, Payslip $payslip)
