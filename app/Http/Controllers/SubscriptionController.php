@@ -36,11 +36,20 @@ class SubscriptionController extends Controller
             ->limit(20)
             ->get();
 
-        $recentPayments = Payment::where('company_id', $company->id)
-            ->with('invoice')
-            ->orderBy('payment_date', 'desc')
-            ->limit(10)
-            ->get();
+        // Payments table may not exist in all environments (e.g. early dev/demo DBs).
+        // Guard the query so the subscriptions page still loads even if the table is missing.
+        $recentPayments = collect();
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('payments')) {
+                $recentPayments = Payment::where('company_id', $company->id)
+                    ->with('invoice')
+                    ->orderBy('payment_date', 'desc')
+                    ->limit(10)
+                    ->get();
+            }
+        } catch (\Throwable $e) {
+            // Silently ignore missing table / migration issues in non‑critical widget
+        }
 
         return view('subscriptions.index', [
             'company' => $company,
