@@ -211,6 +211,69 @@ Route::middleware(['web', 'auth'])
                                 Route::put('/', [\App\Http\Controllers\Company\SettingsController::class, 'update'])
                                     ->name('update');
                             });
+
+                        // Payslips
+                        Route::prefix('payslips')
+                            ->name('payslips.')
+                            ->group(function () {
+                                Route::get('/', [\App\Http\Controllers\PayslipController::class, 'adminIndex'])
+                                    ->name('index');
+                                Route::get('/{payslip}/download', [\App\Http\Controllers\PayslipController::class, 'download'])
+                                    ->name('download');
+                            });
+
+                        // Reports
+                        Route::prefix('reports')
+                            ->name('reports.')
+                            ->group(function () {
+                                Route::get('/', function () {
+                                    return view('reports.index');
+                                })->name('index');
+                                Route::prefix('tax')
+                                    ->name('tax.')
+                                    ->group(function () {
+                                        Route::get('/', [\App\Http\Controllers\Reports\TaxReportController::class, 'index'])
+                                            ->name('index');
+                                        Route::post('/generate', [\App\Http\Controllers\Reports\TaxReportController::class, 'generate'])
+                                            ->name('generate');
+                                    });
+                            });
+
+                        // Users & Roles
+                        Route::prefix('users-roles')
+                            ->name('users-roles.')
+                            ->group(function () {
+                                Route::get('/', [\App\Http\Controllers\Company\UserRoleController::class, 'index'])
+                                    ->name('index');
+                                Route::get('/create', [\App\Http\Controllers\Company\UserRoleController::class, 'create'])
+                                    ->name('create');
+                                Route::post('/', [\App\Http\Controllers\Company\UserRoleController::class, 'store'])
+                                    ->name('store');
+                                Route::get('/{user}/edit', [\App\Http\Controllers\Company\UserRoleController::class, 'edit'])
+                                    ->name('edit');
+                                Route::put('/{user}', [\App\Http\Controllers\Company\UserRoleController::class, 'update'])
+                                    ->name('update');
+                            });
+
+                        // Subscriptions
+                        Route::prefix('subscriptions')
+                            ->name('subscriptions.')
+                            ->group(function () {
+                                Route::get('/', [\App\Http\Controllers\SubscriptionController::class, 'index'])
+                                    ->name('index');
+                                Route::get('/change-plan/{plan}', [\App\Http\Controllers\SubscriptionController::class, 'showChangePlan'])
+                                    ->name('change-plan.show');
+                                Route::post('/change-plan/{plan}', [\App\Http\Controllers\SubscriptionController::class, 'changePlan'])
+                                    ->name('change-plan.store');
+                                Route::post('/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancel'])
+                                    ->name('cancel');
+                                Route::prefix('invoices')
+                                    ->name('invoices.')
+                                    ->group(function () {
+                                        Route::get('/{invoice}/download', [\App\Http\Controllers\SubscriptionController::class, 'downloadInvoice'])
+                                            ->name('download');
+                                    });
+                            });
                     });
 
                 // Employee routes
