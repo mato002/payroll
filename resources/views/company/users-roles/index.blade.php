@@ -1,5 +1,161 @@
 @extends('layouts.layout')
 
+@section('title', __('Users & roles'))
+
+@section('content')
+    <div class="mx-auto max-w-6xl space-y-6">
+        {{-- Header --}}
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    {{ __('Users & roles') }}
+                </h1>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    {{ __('Manage which users can access :company and what they can do.', ['company' => $company->name]) }}
+                </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a
+                    href="{{ route('companies.users-roles.create', ['company' => $company->slug]) }}"
+                    class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+                >
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 4v16m8-8H4"/>
+                    </svg>
+                    {{ __('Add user') }}
+                </a>
+            </div>
+        </div>
+
+        @if (session('success'))
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950 dark:text-emerald-200">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        {{-- Users table --}}
+        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
+            <div class="border-b border-gray-100 px-4 py-3 dark:border-gray-800">
+                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    {{ __('Company users') }}
+                </h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-800">
+                    <thead class="bg-gray-50 dark:bg-gray-900/40">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                            {{ __('User') }}
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                            {{ __('Role') }}
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                            {{ __('Status') }}
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                            {{ __('Last login') }}
+                        </th>
+                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                            {{ __('Actions') }}
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white dark:divide-gray-800 dark:bg-gray-950">
+                    @forelse($users as $user)
+                        @php
+                            $companyPivot = $user->companies->firstWhere('id', $company->id);
+                            $role = $user->roles->first();
+                        @endphp
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/40">
+                            <td class="px-4 py-3 align-top">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-200">
+                                        <span class="text-xs font-semibold">
+                                            {{ strtoupper(Str::substr($user->name ?? $user->email, 0, 2)) }}
+                                        </span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                            {{ $user->name ?? '—' }}
+                                        </span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $user->email }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 align-top text-sm text-gray-700 dark:text-gray-200">
+                                @if($role)
+                                    {{ $role->name }}
+                                @else
+                                    <span class="text-xs text-gray-400">{{ __('No role') }}</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 align-top text-sm">
+                                @if($companyPivot && $companyPivot->pivot->status === 'active')
+                                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200">
+                                        {{ __('Active') }}
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-900/40 dark:text-gray-300">
+                                        {{ __('Pending / Inactive') }}
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 align-top text-sm text-gray-700 dark:text-gray-200">
+                                @if($user->last_login_at)
+                                    {{ $user->last_login_at->diffForHumans() }}
+                                @else
+                                    <span class="text-xs text-gray-400">{{ __('Never') }}</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 align-top text-right text-sm">
+                                <a
+                                    href="{{ route('companies.users-roles.edit', ['company' => $company->slug, 'user' => $user->id]) }}"
+                                    class="inline-flex items-center rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-900"
+                                >
+                                    {{ __('Edit') }}
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                                <div class="flex flex-col items-center gap-2">
+                                    <svg class="h-10 w-10 text-gray-300 dark:text-gray-700" fill="none" viewBox="0 0 24 24"
+                                         stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952A4.125 4.125 0 0015 15.75m0 3.378v.106A12.318 12.318 0 018.624 21 12.31 12.31 0 012.25 19.234v-.106A6.375 6.375 0 018.624 12.75M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0z"/>
+                                    </svg>
+                                    <p class="font-medium">
+                                        {{ __('No users yet') }}
+                                    </p>
+                                    <p class="text-xs text-gray-400">
+                                        {{ __('Add your first company admin or payroll officer to get started.') }}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if($users->hasPages())
+                <div class="border-t border-gray-100 px-4 py-3 dark:border-gray-800">
+                    {{ $users->links() }}
+                </div>
+            @endif
+        </div>
+    </div>
+@endsection
+
+@extends('layouts.layout')
+
 @section('title', __('Users & Roles'))
 
 @section('content')

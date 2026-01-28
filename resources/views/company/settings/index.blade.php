@@ -1,5 +1,257 @@
 @extends('layouts.layout')
 
+@section('title', __('Company settings'))
+
+@section('content')
+    <div class="mx-auto max-w-5xl space-y-6">
+        {{-- Header --}}
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {{ __('Company settings') }}
+            </h1>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                {{ __('Manage basic details, billing information, and localization for this company.') }}
+            </p>
+        </div>
+
+        @if (session('success'))
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950 dark:text-emerald-200">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-900/50 dark:bg-rose-950 dark:text-rose-200">
+                <ul class="list-disc pl-5 space-y-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('companies.settings.update', ['company' => $company->slug]) }}" class="space-y-6">
+            @csrf
+            @method('PUT')
+
+            {{-- General --}}
+            <div class="grid gap-6 md:grid-cols-2">
+                <div class="md:col-span-2 bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        {{ __('General information') }}
+                    </h2>
+
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <x-label for="name" :value="__('Company name')" required />
+                            <x-input
+                                id="name"
+                                name="name"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :value="old('name', $company->name)"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <x-label for="legal_name" :value="__('Legal name')" />
+                            <x-input
+                                id="legal_name"
+                                name="legal_name"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :value="old('legal_name', $company->legal_name)"
+                            />
+                        </div>
+
+                        <div>
+                            <x-label for="registration_number" :value="__('Registration number')" />
+                            <x-input
+                                id="registration_number"
+                                name="registration_number"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :value="old('registration_number', $company->registration_number)"
+                            />
+                        </div>
+
+                        <div>
+                            <x-label for="tax_id" :value="__('Tax ID')" />
+                            <x-input
+                                id="tax_id"
+                                name="tax_id"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :value="old('tax_id', $company->tax_id)"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Billing / Contact --}}
+                <div class="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        {{ __('Billing & contact') }}
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <x-label for="billing_email" :value="__('Billing email')" />
+                            <x-input
+                                id="billing_email"
+                                name="billing_email"
+                                type="email"
+                                class="mt-1 block w-full"
+                                :value="old('billing_email', $company->billing_email)"
+                                placeholder="billing@example.com"
+                            />
+                        </div>
+
+                        <div>
+                            <x-label for="country" :value="__('Country (ISO code)')" />
+                            <x-input
+                                id="country"
+                                name="country"
+                                type="text"
+                                maxlength="2"
+                                class="mt-1 block w-full uppercase"
+                                :value="old('country', $company->country)"
+                                placeholder="KE"
+                            />
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                {{ __('Use 2-letter ISO country code, e.g. KE, US, GB.') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Localization --}}
+                <div class="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        {{ __('Localization') }}
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <x-label for="timezone" :value="__('Timezone')" />
+                            <x-input
+                                id="timezone"
+                                name="timezone"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :value="old('timezone', $company->timezone ?? config('app.timezone'))"
+                                placeholder="Africa/Nairobi"
+                            />
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                {{ __('Use a valid PHP timezone identifier, e.g. Africa/Nairobi.') }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <x-label for="currency" :value="__('Currency (ISO code)')" />
+                            <x-input
+                                id="currency"
+                                name="currency"
+                                type="text"
+                                maxlength="3"
+                                class="mt-1 block w-full uppercase"
+                                :value="old('currency', $company->currency ?? config('app.currency', 'USD'))"
+                                placeholder="KES"
+                            />
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                {{ __('Use 3-letter ISO currency code, e.g. KES, USD, EUR.') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Address --}}
+            <div class="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 space-y-4">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {{ __('Registered address') }}
+                </h2>
+
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div class="md:col-span-2">
+                        <x-label for="address_line1" :value="__('Address line 1')" />
+                        <x-input
+                            id="address_line1"
+                            name="address_line1"
+                            type="text"
+                            class="mt-1 block w-full"
+                            :value="old('address_line1', $company->address_line1)"
+                        />
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <x-label for="address_line2" :value="__('Address line 2')" />
+                        <x-input
+                            id="address_line2"
+                            name="address_line2"
+                            type="text"
+                            class="mt-1 block w-full"
+                            :value="old('address_line2', $company->address_line2)"
+                        />
+                    </div>
+
+                    <div>
+                        <x-label for="city" :value="__('City')" />
+                        <x-input
+                            id="city"
+                            name="city"
+                            type="text"
+                            class="mt-1 block w-full"
+                            :value="old('city', $company->city)"
+                        />
+                    </div>
+
+                    <div>
+                        <x-label for="state" :value="__('State / Region')" />
+                        <x-input
+                            id="state"
+                            name="state"
+                            type="text"
+                            class="mt-1 block w-full"
+                            :value="old('state', $company->state)"
+                        />
+                    </div>
+
+                    <div>
+                        <x-label for="postal_code" :value="__('Postal code')" />
+                        <x-input
+                            id="postal_code"
+                            name="postal_code"
+                            type="text"
+                            class="mt-1 block w-full"
+                            :value="old('postal_code', $company->postal_code)"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3">
+                <a
+                    href="{{ route('companies.company.admin.dashboard.path', ['company' => $company->slug]) }}"
+                    class="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
+                >
+                    {{ __('Cancel') }}
+                </a>
+
+                <button
+                    type="submit"
+                    class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+                >
+                    {{ __('Save changes') }}
+                </button>
+            </div>
+        </form>
+    </div>
+@endsection
+
+@extends('layouts.layout')
+
 @section('title', __('Company Settings'))
 
 @section('content')

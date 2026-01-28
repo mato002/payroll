@@ -1,5 +1,103 @@
 @extends('layouts.layout')
 
+@section('title', __('Add user'))
+
+@section('content')
+    <div class="mx-auto max-w-xl space-y-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {{ __('Add user to :company', ['company' => $company->name]) }}
+            </h1>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                {{ __('Create or attach a user and assign a role for this company.') }}
+            </p>
+        </div>
+
+        @if ($errors->any())
+            <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-900/50 dark:bg-rose-950 dark:text-rose-200">
+                <ul class="list-disc pl-5 space-y-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('companies.users-roles.store', ['company' => $company->slug]) }}" class="space-y-6">
+            @csrf
+
+            <div class="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950">
+                <div class="space-y-4">
+                    <div>
+                        <x-label for="name" :required="true">
+                            {{ __('Full name') }}
+                        </x-label>
+                        <x-input
+                            id="name"
+                            name="name"
+                            type="text"
+                            class="mt-1 block w-full"
+                            :value="old('name')"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <x-label for="email" :required="true">
+                            {{ __('Email address') }}
+                        </x-label>
+                        <x-input
+                            id="email"
+                            name="email"
+                            type="email"
+                            class="mt-1 block w-full"
+                            :value="old('email')"
+                            required
+                        />
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {{ __('If this email already exists, the existing user will be attached to this company.') }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <x-label for="role_id" :required="true">
+                            {{ __('Role') }}
+                        </x-label>
+                        <select
+                            id="role_id"
+                            name="role_id"
+                            class="mt-1 block w-full rounded-md border-gray-300 bg-white text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                            required
+                        >
+                            <option value="">{{ __('Select role') }}</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}" @selected(old('role_id') == $role->id)>
+                                    {{ $role->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3">
+                <a
+                    href="{{ route('companies.users-roles.index', ['company' => $company->slug]) }}"
+                    class="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
+                >
+                    {{ __('Cancel') }}
+                </a>
+
+                <x-button type="submit" variant="primary">
+                    {{ __('Save') }}
+                </x-button>
+            </div>
+        </form>
+    </div>
+@endsection
+
+@extends('layouts.layout')
+
 @section('title', __('Add User'))
 
 @section('content')
