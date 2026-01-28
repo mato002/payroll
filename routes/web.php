@@ -75,6 +75,8 @@ Route::middleware(['web', 'auth', 'role:super_admin'])
             ->group(function () {
                 Route::get('/', [\App\Http\Controllers\Admin\CompanyController::class, 'index'])
                     ->name('index');
+                Route::get('/{company}', [\App\Http\Controllers\Admin\CompanyController::class, 'show'])
+                    ->name('show');
                 Route::get('/create', [\App\Http\Controllers\Admin\CompanyController::class, 'create'])
                     ->name('create');
                 Route::post('/', [\App\Http\Controllers\Admin\CompanyController::class, 'store'])
@@ -253,6 +255,8 @@ Route::middleware(['web', 'auth'])
                                     ->name('edit');
                                 Route::put('/{user}', [\App\Http\Controllers\Company\UserRoleController::class, 'update'])
                                     ->name('update');
+                                Route::delete('/{user}', [\App\Http\Controllers\Company\UserRoleController::class, 'destroy'])
+                                    ->name('destroy');
                             });
 
                         // Subscriptions

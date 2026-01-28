@@ -30,6 +30,18 @@ class CompanyController extends Controller
     }
 
     /**
+     * Show a single company's details.
+     */
+    public function show(Company $company)
+    {
+        $company->load(['subscriptions.plan', 'members']);
+
+        return view('admin.companies.show', [
+            'company' => $company,
+        ]);
+    }
+
+    /**
      * Show the company creation form for admin.
      */
     public function create()

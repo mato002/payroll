@@ -1,8 +1,6 @@
-@extends('layouts.layout')
+<?php $__env->startSection('title', 'Companies Management'); ?>
 
-@section('title', 'Companies Management')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <main class="flex-1">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
             <div class="flex items-center justify-between">
@@ -12,22 +10,23 @@
                         Manage all companies on the platform.
                     </p>
                 </div>
-                @if(Route::has('admin.companies.create'))
-                    <a href="{{ route('admin.companies.create') }}"
+                <?php if(Route::has('admin.companies.create')): ?>
+                    <a href="<?php echo e(route('admin.companies.create')); ?>"
                        class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm">
                         <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
                         </svg>
                         New Company
                     </a>
-                @endif
+                <?php endif; ?>
             </div>
 
-            @if (session('success'))
+            <?php if(session('success')): ?>
                 <div class="rounded-xl bg-emerald-50 border border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800 p-4 text-sm text-emerald-700 dark:text-emerald-300">
-                    {{ session('success') }}
+                    <?php echo e(session('success')); ?>
+
                 </div>
-            @endif
+            <?php endif; ?>
 
             <div class="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
                 <div class="overflow-x-auto">
@@ -52,35 +51,38 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-950 divide-y divide-gray-200 dark:divide-gray-800">
-                            @forelse($companies as $company)
+                            <?php $__empty_1 = true; $__currentLoopData = $companies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $company): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div>
                                                 <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                                                    {{ $company->name }}
+                                                    <?php echo e($company->name); ?>
+
                                                 </div>
-                                                @if($company->legal_name)
+                                                <?php if($company->legal_name): ?>
                                                     <div class="text-sm text-gray-500 dark:text-gray-400">
-                                                        {{ $company->legal_name }}
+                                                        <?php echo e($company->legal_name); ?>
+
                                                     </div>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        @php
+                                        <?php
                                             $statusColor = $company->is_active 
                                                 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
                                                 : 'bg-gray-100 text-gray-700 dark:bg-gray-900/40 dark:text-gray-300';
-                                        @endphp
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
-                                            {{ $company->is_active ? 'Active' : 'Inactive' }}
+                                        ?>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?php echo e($statusColor); ?>">
+                                            <?php echo e($company->is_active ? 'Active' : 'Inactive'); ?>
+
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        @if($company->subscriptions->isNotEmpty())
-                                            @php
+                                        <?php if($company->subscriptions->isNotEmpty()): ?>
+                                            <?php
                                                 $sub = $company->subscriptions->first();
                                                 $subColor = match($sub->status) {
                                                     'active' => 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
@@ -88,27 +90,26 @@
                                                     'past_due' => 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
                                                     default => 'bg-gray-100 text-gray-700 dark:bg-gray-900/40 dark:text-gray-300',
                                                 };
-                                            @endphp
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $subColor }}">
-                                                {{ strtoupper($sub->status) }}
+                                            ?>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?php echo e($subColor); ?>">
+                                                <?php echo e(strtoupper($sub->status)); ?>
+
                                             </span>
-                                        @else
+                                        <?php else: ?>
                                             <span class="text-gray-400">No subscription</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        {{ $company->created_at->format('M d, Y') }}
+                                        <?php echo e($company->created_at->format('M d, Y')); ?>
+
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        @if(Route::has('admin.companies.show'))
-                                            <a href="{{ route('admin.companies.show', $company) }}"
-                                               class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
-                                                View
-                                            </a>
-                                        @endif
+                                        <a href="#" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                            View
+                                        </a>
                                     </td>
                                 </tr>
-                            @empty
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                 <tr>
                                     <td colspan="5" class="px-6 py-12 text-center">
                                         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -116,29 +117,32 @@
                                         </svg>
                                         <h3 class="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">No companies</h3>
                                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating a new company.</p>
-                                        @if(Route::has('admin.companies.create'))
+                                        <?php if(Route::has('admin.companies.create')): ?>
                                             <div class="mt-6">
-                                                <a href="{{ route('admin.companies.create') }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm">
+                                                <a href="<?php echo e(route('admin.companies.create')); ?>" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm">
                                                     <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
                                                     </svg>
                                                     New Company
                                                 </a>
                                             </div>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
-                            @endforelse
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
 
-                @if($companies->hasPages())
+                <?php if($companies->hasPages()): ?>
                     <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-800">
-                        {{ $companies->links() }}
+                        <?php echo e($companies->links()); ?>
+
                     </div>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
     </main>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.layout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\payroll-system\resources\views/admin/companies/index.blade.php ENDPATH**/ ?>

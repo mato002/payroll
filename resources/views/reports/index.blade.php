@@ -25,8 +25,8 @@
                 </a>
             </div>
 
-            <!-- Pension/NSSF Report -->
-            <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <!-- Pension/NSSF Report (coming soon) -->
+            <div class="bg-white shadow-md rounded-lg p-6 opacity-70">
                 <div class="flex items-center mb-4">
                     <div class="bg-green-100 rounded-full p-3 mr-4">
                         <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,17 +35,16 @@
                     </div>
                     <h2 class="text-xl font-semibold">Pension / NSSF</h2>
                 </div>
-                <p class="text-gray-600 mb-4 text-sm">
-                    Generate pension and NSSF contribution reports with employee and employer contributions.
+                <p class="text-gray-600 mb-2 text-sm">
+                    Pension and NSSF contribution reports will be available soon.
                 </p>
-                <a href="{{ route('companies.reports.pension.index', ['company' => currentCompany()?->slug]) }}" 
-                   class="inline-block bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
-                    Generate Report
-                </a>
+                <span class="inline-flex items-center rounded-md bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+                    Coming soon
+                </span>
             </div>
 
-            <!-- Annual Payroll Summary -->
-            <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <!-- Annual Payroll Summary (coming soon) -->
+            <div class="bg-white shadow-md rounded-lg p-6 opacity-70">
                 <div class="flex items-center mb-4">
                     <div class="bg-purple-100 rounded-full p-3 mr-4">
                         <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,13 +53,12 @@
                     </div>
                     <h2 class="text-xl font-semibold">Annual Summary</h2>
                 </div>
-                <p class="text-gray-600 mb-4 text-sm">
-                    Generate comprehensive annual payroll summaries for financial reporting and compliance.
+                <p class="text-gray-600 mb-2 text-sm">
+                    Annual payroll summary reports will be available soon.
                 </p>
-                <a href="{{ route('companies.reports.annual.index', ['company' => currentCompany()?->slug]) }}" 
-                   class="inline-block bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors">
-                    Generate Report
-                </a>
+                <span class="inline-flex items-center rounded-md bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+                    Coming soon
+                </span>
             </div>
         </div>
 

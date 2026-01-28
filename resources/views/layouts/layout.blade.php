@@ -407,10 +407,10 @@
                             @elseif($currentCompanySlug)
                                 @if($isEmployee)
                                     {{-- Employee Navigation --}}
-                                    @if(Route::has('employee.dashboard'))
+                                    @if(Route::has('companies.employee.dashboard'))
                                         <a href="{{ route('companies.employee.dashboard', ['company' => $currentCompanySlug]) }}"
                                            @click="sidebarOpen = false"
-                                           class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('employee.dashboard') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
+                                           class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('companies.employee.dashboard') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
                                                 <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12l8.25-8.25L20.25 12M4.5 10.5v9.75H9.75V15h4.5v5.25H19.5V10.5" />
@@ -420,10 +420,10 @@
                                         </a>
                                     @endif
 
-                                    @if(Route::has('employee.payslips.index'))
+                                    @if(Route::has('companies.employee.payslips.index'))
                                         <a href="{{ route('companies.employee.payslips.index', ['company' => $currentCompanySlug]) }}"
                                            @click="sidebarOpen = false"
-                                           class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('employee.payslips.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
+                                           class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('companies.employee.payslips.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
                                                 <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-6.75A2.25 2.25 0 0017.25 5.25H6.75A2.25 2.25 0 004.5 7.5v9A2.25 2.25 0 006.75 18.75h6.75" />
@@ -434,10 +434,10 @@
                                         </a>
                                     @endif
 
-                                    @if(Route::has('employee.profile.show'))
+                                    @if(Route::has('companies.employee.profile.show'))
                                         <a href="{{ route('companies.employee.profile.show', ['company' => $currentCompanySlug]) }}"
                                            @click="sidebarOpen = false"
-                                           class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('employee.profile.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
+                                           class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('companies.employee.profile.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
                                                 <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6.75a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 19.5a7.5 7.5 0 0115 0" />
@@ -447,10 +447,10 @@
                                         </a>
                                     @endif
 
-                                    @if(Route::has('employee.notifications.index'))
+                                    @if(Route::has('companies.employee.notifications.index'))
                                         <a href="{{ route('companies.employee.notifications.index', ['company' => $currentCompanySlug]) }}"
                                            @click="sidebarOpen = false"
-                                           class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('employee.notifications.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
+                                           class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('companies.employee.notifications.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
                                                 <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
@@ -460,10 +460,10 @@
                                         </a>
                                     @endif
 
-                                    @if(Route::has('employee.help.index'))
+                                    @if(Route::has('companies.employee.help.index'))
                                         <a href="{{ route('companies.employee.help.index', ['company' => $currentCompanySlug]) }}"
                                            @click="sidebarOpen = false"
-                                           class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('employee.help.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
+                                           class="flex items-center rounded-md px-3 py-3 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 {{ request()->routeIs('companies.employee.help.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : '' }}">
                                             <span class="mr-2 inline-flex h-5 w-5 items-center justify-center">
                                                 <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
